@@ -23,3 +23,7 @@ flowchart TD
     API -->|Read Projections| PG
     W -->|Expose Metrics| MM
     CS -->|Expose Metrics| MM
+```
+
+## Kanban Board
+[Open Kanban Board](https://github.com/users/MnzCrsh/projects/1/views/1)
