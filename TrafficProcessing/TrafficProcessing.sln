@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Core", "src\RedBlacksmith.TrafficProcessing.Core\RedBlacksmith.TrafficProcessing.Core.csproj", "{4D301FBC-85D5-4465-8BF9-4535CA51D3A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Application", "RedBlacksmith.TrafficProcessing.Application\RedBlacksmith.TrafficProcessing.Application.csproj", "{4EECC819-C4A0-4735-8367-D803D4D02206}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Models", "RedBlacksmith.TrafficProcessing.Models\RedBlacksmith.TrafficProcessing.Models.csproj", "{C305EF9E-E227-4CBA-97E6-3060AE31A28D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Kafka", "RedBlacksmith.TrafficProcessing.Kafka\RedBlacksmith.TrafficProcessing.Kafka.csproj", "{A57B6E35-3C87-484E-86DE-6463971AED2C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Db", "RedBlacksmith.TrafficProcessing.Db\RedBlacksmith.TrafficProcessing.Db.csproj", "{A950C47A-A938-4FE8-B404-C77889713E50}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D301FBC-85D5-4465-8BF9-4535CA51D3A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D301FBC-85D5-4465-8BF9-4535CA51D3A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D301FBC-85D5-4465-8BF9-4535CA51D3A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D301FBC-85D5-4465-8BF9-4535CA51D3A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EECC819-C4A0-4735-8367-D803D4D02206}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EECC819-C4A0-4735-8367-D803D4D02206}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EECC819-C4A0-4735-8367-D803D4D02206}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EECC819-C4A0-4735-8367-D803D4D02206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C305EF9E-E227-4CBA-97E6-3060AE31A28D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C305EF9E-E227-4CBA-97E6-3060AE31A28D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C305EF9E-E227-4CBA-97E6-3060AE31A28D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C305EF9E-E227-4CBA-97E6-3060AE31A28D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A57B6E35-3C87-484E-86DE-6463971AED2C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A57B6E35-3C87-484E-86DE-6463971AED2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A57B6E35-3C87-484E-86DE-6463971AED2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A57B6E35-3C87-484E-86DE-6463971AED2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A950C47A-A938-4FE8-B404-C77889713E50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A950C47A-A938-4FE8-B404-C77889713E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A950C47A-A938-4FE8-B404-C77889713E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A950C47A-A938-4FE8-B404-C77889713E50}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
