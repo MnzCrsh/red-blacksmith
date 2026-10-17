@@ -1,0 +1,24 @@
+﻿syntax = "proto3";
+
+package redblacksmith.trafficingestion.v1;
+
+option csharp_namespace = "RedBlacksmith.TrafficIngestion.Contracts";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service TrafficIngestion{
+  rpc Ingest(stream PacketEvent) returns (google.protobuf.Empty);
+}
+
+message PacketEvent{
+  string event_id = 1;
+  string source_id = 2;
+  google.protobuf.Timestamp occurred_at_utc = 3;
+  bytes source_ip = 4;
+  bytes destination_ip = 5;
+  optional uint32 source_port = 6;
+  optional uint32 destination_port = 7;
+  uint32 protocol = 8;
+  uint32 packet_length_bytes = 9;
+}

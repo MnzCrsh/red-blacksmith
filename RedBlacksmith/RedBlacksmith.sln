@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Core", "RedBlacksmith.TrafficIngestion.Core\RedBlacksmith.TrafficIngestion.Core.csproj", "{E606DD27-5835-4074-A0A1-FE532275FF55}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrafficIngestion", "TrafficIngestion", "{0FCD42F0-565F-4772-9527-BA8896413377}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Contracts", "RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj", "{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Application", "RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj", "{25A8A828-963A-418F-9C21-45C3F9C174DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TraffickIngestion.Tests", "RedBlacksmith.TraffickIngestion.Tests\RedBlacksmith.TraffickIngestion.Tests.csproj", "{71F14776-C733-4E98-9FD6-20A5CBFB3948}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{64110FD3-7C9B-4F66-BE4A-0E13E9A95521}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrafficIngestionTests", "TrafficIngestionTests", "{F73D6BC7-6CF0-4CEF-8922-BAC321175FAD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E606DD27-5835-4074-A0A1-FE532275FF55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E606DD27-5835-4074-A0A1-FE532275FF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E606DD27-5835-4074-A0A1-FE532275FF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E606DD27-5835-4074-A0A1-FE532275FF55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{25A8A828-963A-418F-9C21-45C3F9C174DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{25A8A828-963A-418F-9C21-45C3F9C174DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{25A8A828-963A-418F-9C21-45C3F9C174DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{25A8A828-963A-418F-9C21-45C3F9C174DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71F14776-C733-4E98-9FD6-20A5CBFB3948}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71F14776-C733-4E98-9FD6-20A5CBFB3948}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71F14776-C733-4E98-9FD6-20A5CBFB3948}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71F14776-C733-4E98-9FD6-20A5CBFB3948}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E606DD27-5835-4074-A0A1-FE532275FF55} = {0FCD42F0-565F-4772-9527-BA8896413377}
+		{A9ADAF61-7CFC-470E-97B2-4919C3215ACD} = {0FCD42F0-565F-4772-9527-BA8896413377}
+		{25A8A828-963A-418F-9C21-45C3F9C174DC} = {0FCD42F0-565F-4772-9527-BA8896413377}
+		{F73D6BC7-6CF0-4CEF-8922-BAC321175FAD} = {64110FD3-7C9B-4F66-BE4A-0E13E9A95521}
+		{71F14776-C733-4E98-9FD6-20A5CBFB3948} = {F73D6BC7-6CF0-4CEF-8922-BAC321175FAD}
+	EndGlobalSection
+EndGlobal
