@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>RedBlacksmith</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Grpc.AspNetCore" Version="2.84.0" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.84.0" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj" />
+      <ProjectReference Include="..\RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj" />
+    </ItemGroup>
+
+</Project>
