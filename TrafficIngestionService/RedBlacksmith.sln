@@ -1,14 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Core", "RedBlacksmith.TrafficIngestion.Core\RedBlacksmith.TrafficIngestion.Core.csproj", "{E606DD27-5835-4074-A0A1-FE532275FF55}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Core", "src\RedBlacksmith.TrafficIngestion.Core\RedBlacksmith.TrafficIngestion.Core.csproj", "{E606DD27-5835-4074-A0A1-FE532275FF55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrafficIngestion", "TrafficIngestion", "{0FCD42F0-565F-4772-9527-BA8896413377}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Contracts", "RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj", "{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Contracts", "src\RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj", "{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Application", "RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj", "{25A8A828-963A-418F-9C21-45C3F9C174DC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Application", "src\RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj", "{25A8A828-963A-418F-9C21-45C3F9C174DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TraffickIngestion.Tests", "RedBlacksmith.TraffickIngestion.Tests\RedBlacksmith.TraffickIngestion.Tests.csproj", "{71F14776-C733-4E98-9FD6-20A5CBFB3948}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TraffickIngestion.Tests", "tests\RedBlacksmith.TraffickIngestion.Tests\RedBlacksmith.TraffickIngestion.Tests.csproj", "{71F14776-C733-4E98-9FD6-20A5CBFB3948}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{64110FD3-7C9B-4F66-BE4A-0E13E9A95521}"
 EndProject
