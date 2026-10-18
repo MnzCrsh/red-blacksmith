@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProces
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Application", "RedBlacksmith.TrafficProcessing.Application\RedBlacksmith.TrafficProcessing.Application.csproj", "{4EECC819-C4A0-4735-8367-D803D4D02206}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Models", "RedBlacksmith.TrafficProcessing.Models\RedBlacksmith.TrafficProcessing.Models.csproj", "{C305EF9E-E227-4CBA-97E6-3060AE31A28D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Contracts", "RedBlacksmith.TrafficProcessing.Contracts\RedBlacksmith.TrafficProcessing.Contracts.csproj", "{C305EF9E-E227-4CBA-97E6-3060AE31A28D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Kafka", "RedBlacksmith.TrafficProcessing.Kafka\RedBlacksmith.TrafficProcessing.Kafka.csproj", "{A57B6E35-3C87-484E-86DE-6463971AED2C}"
 EndProject
