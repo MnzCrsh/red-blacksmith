@@ -2,7 +2,7 @@ using System.Net;
 
 namespace RedBlacksmith.TrafficProcessing.Models;
 
-public sealed record PacketEvent(
+public record PacketEvent(
     Guid EventId,
     Guid SourceId,
     DateTimeOffset OccurredAtUtc,

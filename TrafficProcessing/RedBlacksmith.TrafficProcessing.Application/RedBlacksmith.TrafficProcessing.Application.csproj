@@ -6,4 +6,8 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Contracts\RedBlacksmith.TrafficProcessing.Contracts.csproj" />
+    </ItemGroup>
+
 </Project>

@@ -6,4 +6,16 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Application\RedBlacksmith.TrafficProcessing.Application.csproj" />
+      <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Contracts\RedBlacksmith.TrafficProcessing.Contracts.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Confluent.Kafka" Version="2.16.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.13" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
+      <PackageReference Include="Polly" Version="8.8.0" />
+    </ItemGroup>
+
 </Project>
