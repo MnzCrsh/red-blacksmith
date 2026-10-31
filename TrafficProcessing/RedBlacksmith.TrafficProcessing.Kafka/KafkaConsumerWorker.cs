@@ -3,9 +3,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
-using RedBlacksmith.TrafficProcessing.Application;
 using RedBlacksmith.TrafficProcessing.Kafka.RetryPolicies;
 using RedBlacksmith.TrafficProcessing.Models;
+using RedBlacksmith.TrafficProcessing.Models.Abstracts;
+using RedBlacksmith.TrafficProcessing.Models.DomainModels;
 
 namespace RedBlacksmith.TrafficProcessing.Kafka;
 
@@ -17,19 +18,20 @@ internal sealed class KafkaConsumerWorker(
     ConsumerConfig consumerConfig) 
     : BackgroundService
 {
-    private const int DefaultMaxAttempts  = 10;
+    private const int MaxRetryAttempts  = 9;
     
     private const int DefaultRetryDelayMs = 250;
     
-    private const int MaxRetryDelayMs     = 10_000;
+    private const int RetryDelayMsThreshold     = 10_000;
     
     private const int ConsumeErrorDelayMs = 250;
+    
+    private readonly ResiliencePipeline _retryPipeline = RetryProvider.CreateRetryPipeline(
+     logger, MaxRetryAttempts, DefaultRetryDelayMs, RetryDelayMsThreshold);
     
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         using var consumer = CreateConsumer();
-
-        var retryPipeline = RetryProvider.CreateRetryPipeline(logger, DefaultMaxAttempts - 1, DefaultRetryDelayMs, MaxRetryDelayMs);
         
         SubscribeToTopic(consumer);
 
@@ -69,14 +71,13 @@ internal sealed class KafkaConsumerWorker(
                     await PublishDeadLetterWithRetryAsync(dlqPublisher,
                                                           consumeResult,
                                                           exception,
-                                                          retryPipeline,
                                                           stoppingToken);
 
                     consumer.Commit(consumeResult);
                     continue;
                 }
 
-                await ProcessWithRetryAsync(eventProcessor, batch.Events, batch.BatchId, retryPipeline, stoppingToken);
+                await ProcessWithRetryAsync(eventProcessor, batch.Events, batch.BatchId, stoppingToken);
                 consumer.Commit(consumeResult);
 
                 logger.LogDebug("Committed {TopicPartitionOffset} for batch {BatchId} containing {EventCount} events.",
@@ -110,9 +111,11 @@ internal sealed class KafkaConsumerWorker(
         ResiliencePipeline retryPipeline,
         CancellationToken cancellationToken)
     {
+        const int totalAllowedAttempts = MaxRetryAttempts + 1;
+
         try
         {
-            await retryPipeline.ExecuteAsync(static async (op, token) => await op(token), operation,cancellationToken);
+            await retryPipeline.ExecuteAsync(static async (op, token) => await op(token), operation, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -122,7 +125,7 @@ internal sealed class KafkaConsumerWorker(
         {
             logger.LogCritical(exception,
                                "{Operation} failed for {Target} after {Attempts} attempts. The Kafka offset will not be committed.",
-                               operationName, target, DefaultMaxAttempts);
+                               operationName, target, totalAllowedAttempts );
 
             throw;
         }
@@ -131,22 +134,20 @@ internal sealed class KafkaConsumerWorker(
     private async Task ProcessWithRetryAsync(IPacketEventProcessor packetEventProcessor,
         PacketEvent[] batch,
         Guid batchId,
-        ResiliencePipeline retryPipeline,
         CancellationToken stoppingToken) =>
-        await ExecuteWithRetryAsync(token => packetEventProcessor.ProcessBatchAsync(batch, token),
+        await ExecuteWithRetryAsync(token => packetEventProcessor.ProcessBatchAsync(batchId, batch, token),
                                     "Processing packet batch",
                                     batchId.ToString(),
-                                    retryPipeline,
+                                    _retryPipeline,
                                     stoppingToken);
 
     private async Task PublishDeadLetterWithRetryAsync(KafkaDeadLetterPublisher deadLetterPublisher,
         ConsumeResult<Ignore, byte[]> consumeResult,
         Exception exception,
-        ResiliencePipeline retryPipeline,
         CancellationToken stoppingToken) =>
         await ExecuteWithRetryAsync(token => deadLetterPublisher.PublishAsync(consumeResult, exception, token),
                                     "Publishing dead letter to DLQ",
                                     consumeResult.TopicPartitionOffset.ToString(),
-                                    retryPipeline,
+                                    _retryPipeline,
                                     stoppingToken);
 }

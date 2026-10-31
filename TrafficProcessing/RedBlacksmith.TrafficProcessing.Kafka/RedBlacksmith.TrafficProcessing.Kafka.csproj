@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Application\RedBlacksmith.TrafficProcessing.Application.csproj" />
       <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Contracts\RedBlacksmith.TrafficProcessing.Contracts.csproj" />
     </ItemGroup>
 

@@ -1,6 +1,8 @@
 using System.Net;
 using System.Text.Json;
+using RedBlacksmith.TrafficProcessing.Kafka.Models;
 using RedBlacksmith.TrafficProcessing.Models;
+using RedBlacksmith.TrafficProcessing.Models.DomainModels;
 
 namespace RedBlacksmith.TrafficProcessing.Kafka;
 

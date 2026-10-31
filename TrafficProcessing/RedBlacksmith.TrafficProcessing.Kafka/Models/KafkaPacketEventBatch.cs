@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace RedBlacksmith.TrafficProcessing.Models;
+namespace RedBlacksmith.TrafficProcessing.Kafka.Models;
 
 public sealed record KafkaPacketEventBatch
 {

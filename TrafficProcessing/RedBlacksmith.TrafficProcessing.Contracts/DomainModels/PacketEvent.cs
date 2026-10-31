@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace RedBlacksmith.TrafficProcessing.Models;
+namespace RedBlacksmith.TrafficProcessing.Models.DomainModels;
 
 public record PacketEvent(
     Guid EventId,

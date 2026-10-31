@@ -15,16 +15,16 @@ internal static class RetryProvider
     /// <param name="logger">Класс для логгирования провалившихся попыток.</param>
     /// <param name="maxRetryAttempts">Максимальное количество повторов.</param>
     /// <param name="defaultRetryDelayMs">Базовая задержка между повторами.</param>
-    /// <param name="maxRetryDelayMs">Максимальный размер до которого может вырасти задержка.</param>
+    /// <param name="retryDelayMsThreshold">Максимальный размер до которого может вырасти задержка.</param>
     public static ResiliencePipeline CreateRetryPipeline(ILogger<KafkaConsumerWorker> logger,
         int maxRetryAttempts,
         int defaultRetryDelayMs,
-        int maxRetryDelayMs) =>
+        int retryDelayMsThreshold) =>
         new ResiliencePipelineBuilder().AddRetry(new RetryStrategyOptions
         {
             MaxRetryAttempts = maxRetryAttempts,
             Delay = TimeSpan.FromMilliseconds(defaultRetryDelayMs),
-            MaxDelay = TimeSpan.FromMilliseconds(maxRetryDelayMs),
+            MaxDelay = TimeSpan.FromMilliseconds(retryDelayMsThreshold),
             BackoffType = DelayBackoffType.Exponential,
             
             OnRetry = args =>
