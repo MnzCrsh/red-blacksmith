@@ -13,7 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\RedBlacksmith.TrafficProcessing.Application\RedBlacksmith.TrafficProcessing.Application.csproj" />
+      <ProjectReference Include="..\..\RedBlacksmith.TrafficProcessing.Clickhouse\RedBlacksmith.TrafficProcessing.Clickhouse.csproj" />
       <ProjectReference Include="..\..\RedBlacksmith.TrafficProcessing.Kafka\RedBlacksmith.TrafficProcessing.Kafka.csproj" />
+      <ProjectReference Include="..\..\RedBlacksmith.TrafficProcessing.Postgres\RedBlacksmith.TrafficProcessing.Postgres.csproj" />
     </ItemGroup>
 
 </Project>
