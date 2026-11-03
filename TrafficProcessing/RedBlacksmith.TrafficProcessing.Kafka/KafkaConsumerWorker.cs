@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Polly;
 using RedBlacksmith.TrafficProcessing.Kafka.RetryPolicies;
-using RedBlacksmith.TrafficProcessing.Models;
 using RedBlacksmith.TrafficProcessing.Models.Abstracts;
 using RedBlacksmith.TrafficProcessing.Models.DomainModels;
 

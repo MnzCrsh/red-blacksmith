@@ -10,7 +10,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProces
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Clickhouse", "RedBlacksmith.TrafficProcessing.Clickhouse\RedBlacksmith.TrafficProcessing.Clickhouse.csproj", "{A950C47A-A938-4FE8-B404-C77889713E50}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clickhouse", "Clickhouse", "{4D757753-D888-48D2-BFBA-E01231EA4569}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Postgres", "RedBlacksmith.TrafficProcessing.Postgres\RedBlacksmith.TrafficProcessing.Postgres.csproj", "{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,8 +38,11 @@ Global
 		{A950C47A-A938-4FE8-B404-C77889713E50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A950C47A-A938-4FE8-B404-C77889713E50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A950C47A-A938-4FE8-B404-C77889713E50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A950C47A-A938-4FE8-B404-C77889713E50} = {4D757753-D888-48D2-BFBA-E01231EA4569}
 	EndGlobalSection
 EndGlobal
