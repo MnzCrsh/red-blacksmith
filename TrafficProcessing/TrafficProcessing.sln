@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProces
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficProcessing.Postgres", "RedBlacksmith.TrafficProcessing.Postgres\RedBlacksmith.TrafficProcessing.Postgres.csproj", "{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{5476FFEB-D0CA-4033-BE69-E9D02DAB9381}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,7 @@ Global
 		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{8FA9CDE2-14FB-4C97-BD6A-99F63C9CECA5} = {5476FFEB-D0CA-4033-BE69-E9D02DAB9381}
+		{A950C47A-A938-4FE8-B404-C77889713E50} = {5476FFEB-D0CA-4033-BE69-E9D02DAB9381}
 	EndGlobalSection
 EndGlobal

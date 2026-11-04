@@ -7,7 +7,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="FluentMigrator" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Runner" Version="8.0.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
     </ItemGroup>
 
 </Project>
