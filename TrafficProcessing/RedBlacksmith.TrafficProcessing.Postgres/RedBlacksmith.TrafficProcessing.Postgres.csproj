@@ -7,7 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Dapper" Version="2.1.89" />
+      <PackageReference Include="FluentMigrator" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Extensions.Postgres" Version="8.0.1" />
+      <PackageReference Include="FluentMigrator.Runner" Version="8.0.1" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.14" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.14" />
+      <PackageReference Include="Npgsql" Version="10.0.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RedBlacksmith.TrafficProcessing.Contracts\RedBlacksmith.TrafficProcessing.Contracts.csproj" />
     </ItemGroup>
 
 </Project>

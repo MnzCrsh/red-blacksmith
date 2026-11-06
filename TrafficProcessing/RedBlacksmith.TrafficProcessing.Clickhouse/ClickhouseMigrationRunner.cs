@@ -27,19 +27,17 @@ internal class ClickhouseMigrationRunner(
     /// <summary>
     /// Создаёт служебную инфраструктуру и применяет неприменённые миграции.
     /// </summary>
-    public async Task RunAsync(CancellationToken cancellationToken)
+    public async Task RunAsync()
     {
 
-        await EnsureInfrastructureAsync(cancellationToken);
-        var appliedMigrations = await LoadAppliedMigrationsAsync(cancellationToken);
+        await EnsureInfrastructureAsync();
+        var appliedMigrations = await LoadAppliedMigrationsAsync();
 
         var migrations = LoadMigrations();
         EnsureMigrationFilesExist(migrations, appliedMigrations);
 
         foreach (var migration in migrations)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             if (appliedMigrations.TryGetValue(migration.Version, out var applied))
             {
                 ValidateAppliedMigration(migration, applied);
@@ -50,9 +48,9 @@ internal class ClickhouseMigrationRunner(
 
             var sql = migration.Sql.Replace(DatabaseToken, $"`{options.Database}`", StringComparison.Ordinal);
 
-            await client.ExecuteNonQueryAsync(sql, cancellationToken: cancellationToken);
+            await client.ExecuteNonQueryAsync(sql);
 
-            await SaveMigrationAsync(migration, cancellationToken);
+            await SaveMigrationAsync(migration);
 
             logger.LogInformation("Applied ClickHouse migration {Version}: {Name}.", migration.Version, migration.Name);
         }
@@ -63,12 +61,11 @@ internal class ClickhouseMigrationRunner(
     /// <summary>
     /// Создаёт базу данных и таблицу истории миграций, если еще не созданы.
     /// </summary>
-    private async Task EnsureInfrastructureAsync(
-        CancellationToken cancellationToken)
+    private async Task EnsureInfrastructureAsync()
     {
         var database = $"`{options.Database}`";
 
-        await client.ExecuteNonQueryAsync($"CREATE DATABASE IF NOT EXISTS {database}", cancellationToken: cancellationToken);
+        await client.ExecuteNonQueryAsync($"CREATE DATABASE IF NOT EXISTS {database}");
 
         await client.ExecuteNonQueryAsync(
             $"""
@@ -81,14 +78,13 @@ internal class ClickhouseMigrationRunner(
              )
              ENGINE = MergeTree
              ORDER BY version
-             """, cancellationToken: cancellationToken);
+             """);
     }
 
     /// <summary>
     /// Загружает применённые миграции из ClickHouse.
     /// </summary>
-    private async Task<Dictionary<ulong, AppliedMigration>>
-        LoadAppliedMigrationsAsync(CancellationToken cancellationToken)
+    private async Task<Dictionary<ulong, AppliedMigration>> LoadAppliedMigrationsAsync()
     {
         var sql = $"""
                    SELECT version, name, checksum
@@ -96,7 +92,7 @@ internal class ClickhouseMigrationRunner(
                    ORDER BY version
                    """;
 
-        await using var reader = await client.ExecuteReaderAsync(sql, cancellationToken: cancellationToken);
+        await using var reader = await client.ExecuteReaderAsync(sql);
 
         var migrations = new Dictionary<ulong, AppliedMigration>();
 
@@ -121,9 +117,7 @@ internal class ClickhouseMigrationRunner(
     /// <summary>
     /// Сохраняет информацию об успешно применённой миграции.
     /// </summary>
-    private async Task SaveMigrationAsync(
-        Migration migration,
-        CancellationToken cancellationToken)
+    private async Task SaveMigrationAsync(Migration migration)
     {
         var database = $"`{options.Database}`";
 
@@ -140,7 +134,7 @@ internal class ClickhouseMigrationRunner(
                     ({version:UInt64}, {name:String}, {checksum:FixedString(64)})
                     """;
 
-        await client.ExecuteNonQueryAsync(sql, parameters, cancellationToken: cancellationToken);
+        await client.ExecuteNonQueryAsync(sql, parameters);
     }
 
     /// <summary>
