@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using RedBlacksmith.TrafficProcessing.Models.Abstracts;
 using RedBlacksmith.TrafficProcessing.Models.DomainModels;
 
@@ -9,6 +10,37 @@ internal class PacketEventProcessor(IPacketEventStore eventStore, IPacketEventPr
 {
     /// <inheritdoc/>
     public async Task ProcessBatchAsync(Guid batchId, IReadOnlyList<PacketEvent> events, CancellationToken cancellationToken)
+    {
+        var startedAt = Stopwatch.GetTimestamp();
+        
+        using var activity = TrafficProcessingTelemetry.StartBatchProcessObserving(batchId, events.Count);
+
+        try
+        {
+            await ProcessBatch(batchId, events, cancellationToken);
+            TrafficProcessingTelemetry.RecordBatchProcessed(events.Count);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            activity?.SetTag("operation.cancelled", true);
+            throw;
+        }
+        catch (Exception exception)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error);
+            activity?.SetTag("error.type", exception.GetType().FullName);
+
+            TrafficProcessingTelemetry.RecordBatchFailed();
+
+            throw;
+        }
+        finally
+        {
+            TrafficProcessingTelemetry.RecordBatchDuration(Stopwatch.GetElapsedTime(startedAt));
+        }
+    }
+
+    private async Task ProcessBatch(Guid batchId, IReadOnlyList<PacketEvent> events, CancellationToken cancellationToken)
     {
         Validate(batchId, events, cancellationToken);
 

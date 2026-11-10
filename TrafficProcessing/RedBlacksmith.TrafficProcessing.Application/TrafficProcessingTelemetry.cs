@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+// ReSharper disable ExplicitCallerInfoArgument
 
 namespace RedBlacksmith.TrafficProcessing.Application;
 

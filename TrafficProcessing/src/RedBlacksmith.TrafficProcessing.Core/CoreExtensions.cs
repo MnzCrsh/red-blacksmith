@@ -9,7 +9,7 @@ namespace TrafficProcessing;
 
 public static class CoreExtensions
 {
-    public static IServiceCollection AddObservability(this IServiceCollection services)
+    public static IServiceCollection AddTrafficProcessingObservability(this IServiceCollection services)
     {
         var openTelemetryBuilder = services.AddOpenTelemetry()
                                            .ConfigureResource(builder => builder.AddService("traffic-processing"));

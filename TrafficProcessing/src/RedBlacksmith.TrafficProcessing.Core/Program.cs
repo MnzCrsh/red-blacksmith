@@ -8,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var services = builder.Services;
 
-services.AddObservability()
+services.AddTrafficProcessingObservability()
         .AddApplicationServices()
         .AddPostgresServices()
         .AddClickhouseServices(builder.Configuration)
