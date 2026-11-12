@@ -80,7 +80,7 @@ internal sealed class KafkaPublishWorker(
         {
             while (batch.Count < batchSize)
             {
-                while (batch.Count < batchSize && channelReader.TryRead(out PacketEvent? packetEvent))
+                while (batch.Count < batchSize && channelReader.TryRead(out var packetEvent))
                 {
                     batch.Add(packetEvent);
                 }
