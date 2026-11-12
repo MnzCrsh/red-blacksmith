@@ -12,8 +12,7 @@ internal static class TimeStampExtensions
 
     public static bool IsValid(this Timestamp? timestamp)
     {
-        if (timestamp is null) 
-            return false;
+        if (timestamp is null) return false;
 
         return timestamp.Seconds is >= MinSeconds and <= MaxSeconds &&
                timestamp.Nanos is >= MinNanos and <= MaxNanos;
