@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Diagnostics;
+using System.Threading.Channels;
 using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
@@ -22,27 +23,39 @@ internal sealed class TrafficIngestionGrpcService(
         var enqueuedCount = 0;
         var rejectedCount = 0;
         string? lastValidationError = null;
-        
-        while (await requestStream.MoveNext(context.CancellationToken))
+
+        try
         {
-            var request = requestStream.Current;
+            while (await requestStream.MoveNext(context.CancellationToken))
+            {
+                var request = requestStream.Current;
 
-            if (!PacketEventValidator.TryValidate(request, out var packetEvent, out var errorMessage ))
-            {
-                rejectedCount++;
-                lastValidationError = errorMessage;
-                continue;
-            }
+                if (!PacketEventValidator.TryValidate(request, out var packetEvent, out var errorMessage ))
+                {
+                    rejectedCount++;
+                    lastValidationError = errorMessage;
+                    continue;
+                }
 
-            try
-            {
-                await channelWriter.WriteAsync(packetEvent, context.CancellationToken);
-                enqueuedCount++;
+                var writeStartedAt = Stopwatch.GetTimestamp();
+                try
+                {
+                    await channelWriter.WriteAsync(packetEvent, context.CancellationToken);
+                    enqueuedCount++;
+                }
+                catch (ChannelClosedException)
+                {
+                    throw new RpcException(new Status(StatusCode.Unavailable, "Приём событий временно недоступен."));
+                }
+                finally
+                {
+                    TrafficIngestionTelemetry.RecordChannelWriteDuration(Stopwatch.GetElapsedTime(writeStartedAt));
+                }
             }
-            catch (ChannelClosedException)
-            {
-                throw new RpcException(new Status(StatusCode.Unavailable, "Приём событий временно недоступен."));
-            }
+        }
+        finally
+        {
+            TrafficIngestionTelemetry.RecordGrpcStream(enqueuedCount, rejectedCount);
         }
 
         if (rejectedCount > 0) 

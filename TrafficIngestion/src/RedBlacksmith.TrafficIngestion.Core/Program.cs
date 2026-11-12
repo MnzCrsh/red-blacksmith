@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Confluent.Kafka;
+using RedBlacksmith;
 using RedBlacksmith.TrafficIngestion.Models;
 using RedBlacksmith.TrafficIngestion.Application;
 
@@ -25,6 +26,7 @@ var producerConfig = new ProducerConfig
     CompressionType = CompressionType.Lz4
 };
 
+services.AddObservability();
 services.AddSingleton(channel.Reader)
         .AddSingleton(channel.Writer)
         .AddSingleton<IProducer<Null, byte[]>>(_ => new ProducerBuilder<Null, byte[]>(producerConfig)

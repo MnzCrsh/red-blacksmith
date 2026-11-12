@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Globalization;
+
 // ReSharper disable ExplicitCallerInfoArgument
 
 namespace RedBlacksmith.TrafficIngestion.Application;
 
-public class TrafficIngestionTelemetry
+public static class TrafficIngestionTelemetry
 {
     /// <summary>
     /// Имя источника телеметрии сервиса.
@@ -43,27 +45,34 @@ public class TrafficIngestionTelemetry
         .CreateHistogram<double>("traffic.ingestion.kafka.publish.duration", "s");
     
     /// <summary>
-    /// Начинает трассировку публикации Kafka batch.
+    /// Начинает трассировку общей операции публикации batch.
     /// </summary>
-    public static Activity? StartKafkaPublish(
-        Guid batchId,
-        int eventCount,
-        string? topic)
+    public static Activity? StartBatchPublish(Guid batchId, int eventCount)
     {
-        var activity = ActivitySource.StartActivity("kafka.publish", ActivityKind.Producer);
+        var activity = ActivitySource.StartActivity("traffic.batch.publish");
+        if (activity is not { IsAllDataRequested: true }) return activity;
+        
+        activity.SetTag("traffic.batch.id", batchId);
+        activity.SetTag("traffic.batch.event_count", eventCount);
+
+        return activity;
+    }
+    
+    /// <summary>
+    /// Начинает трассировку отправки сообщения в Kafka.
+    /// </summary>
+    public static Activity? StartKafkaProduce(Guid batchId, int eventCount, string topic)
+    {
+        var activity = ActivitySource.StartActivity($"send {topic}", ActivityKind.Producer);
 
         if (activity is not { IsAllDataRequested: true })
-        {
             return activity;
-        }
-        if (!string.IsNullOrWhiteSpace(topic))
-        {
-            activity.SetTag("messaging.destination.name", topic);
-        }
+
         activity.SetTag("messaging.system.name", "kafka");
-        activity.SetTag("messaging.operation.name", "publish");
+        activity.SetTag("messaging.destination.name", topic);
+        activity.SetTag("messaging.operation.name", "send");
         activity.SetTag("messaging.operation.type", "send");
-        activity.SetTag("messaging.message.id", batchId.ToString());
+        activity.SetTag("traffic.batch.id", batchId);
         activity.SetTag("traffic.batch.event_count", eventCount);
 
         return activity;
@@ -89,13 +98,18 @@ public class TrafficIngestionTelemetry
     /// <summary>
     /// Регистрирует успешно опубликованный Kafka batch.
     /// </summary>
-    public static void RecordBatchPublished(int eventCount, TimeSpan duration)
+    public static void RecordBatchPublished(int eventCount)
     {
         PublishedBatches.Add(1);
         PublishedEvents.Add(eventCount);
         PublishBatchSize.Record(eventCount);
-        PublishDuration.Record(duration.TotalSeconds);
     }
+    
+    /// <summary>
+    /// Регистрирует продолжительность публикации batch.
+    /// </summary>
+    public static void RecordPublishDuration(TimeSpan duration) => PublishDuration.Record(duration.TotalSeconds);
+    
     /// <summary>
     /// Регистрирует повторную попытку публикации.
     /// </summary>
@@ -117,5 +131,33 @@ public class TrafficIngestionTelemetry
         activity.SetStatus(ActivityStatusCode.Error);
 
         if (activity.IsAllDataRequested) activity.SetTag("error.type", exception.GetType().FullName);
+    }
+    
+    /// <summary>
+    /// Отмечает ошибку Kafka Producer в трассировке.
+    /// </summary>
+    public static void RecordKafkaProduceError(
+        Activity? activity,
+        Exception exception)
+    {
+        if (activity is null)
+            return;
+
+        activity.SetStatus(ActivityStatusCode.Error);
+
+        if (activity.IsAllDataRequested)
+            activity.SetTag("error.type", exception.GetType().FullName);
+    }
+    
+    /// <summary>
+    /// Регистрирует результат успешной отправки Kafka batch.
+    /// </summary>
+    public static void RecordKafkaProduceSuccess(Activity? activity, int partition, long offset)
+    {
+        if (activity is not { IsAllDataRequested: true })
+            return;
+
+        activity.SetTag("messaging.destination.partition.id", partition.ToString(CultureInfo.InvariantCulture));
+        activity.SetTag("kafka.offset", offset);
     }
 }

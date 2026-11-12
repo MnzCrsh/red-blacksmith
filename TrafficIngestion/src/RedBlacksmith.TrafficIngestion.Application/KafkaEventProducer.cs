@@ -1,7 +1,11 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics;
+using System.Text;
+using System.Text.Json;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 using RedBlacksmith.TrafficIngestion.Models;
 
 namespace RedBlacksmith.TrafficIngestion.Application;
@@ -28,14 +32,13 @@ internal sealed class KafkaEventProducer(
     
     public static KafkaBatchPayload PrepareBatch(IReadOnlyList<PacketEvent> batch)
     {
-        var batchId = Guid.CreateVersion7();
         var items = new KafkaPacketEvent[batch.Count];
-
         for (var i = 0; i < batch.Count; i++)
         {
             items[i] = CreateMessage(batch[i]);
         }
         
+        var batchId = Guid.CreateVersion7();
         var message = new KafkaPacketEventBatch(batchId, DateTimeOffset.UtcNow, items);
         var payload = JsonSerializer.SerializeToUtf8Bytes(message, JsonOptions);
         
@@ -47,8 +50,31 @@ internal sealed class KafkaEventProducer(
     /// </summary>
     /// <param name="batch">Batch содержащий модели события сетевого пакета</param>
     /// <param name="ct">Токен отмены.</param>
-    public async Task ProduceBatchAsync(KafkaBatchPayload batch, CancellationToken ct) => 
-        await producer.ProduceAsync(_topic, new Message<Null, byte[]> { Value = batch.Payload }, ct);
+    public async Task ProduceBatchAsync(KafkaBatchPayload batch, CancellationToken ct)
+    {
+        using var activity = TrafficIngestionTelemetry.StartKafkaProduce(batch.BatchId, batch.EventCount, _topic);
+
+        try
+        {
+            var result = await producer.ProduceAsync(_topic, new Message<Null, byte[]>
+            {
+                Value = batch.Payload, Headers = CreateTraceHeaders(activity)
+            }, ct);
+            
+            TrafficIngestionTelemetry.RecordKafkaProduceSuccess(activity, result.Partition.Value, result.Offset.Value);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            activity?.SetTag("operation.cancelled", true);
+            throw;
+        }
+        catch (Exception exception)
+        {
+            TrafficIngestionTelemetry.RecordKafkaProduceError(activity, exception);
+
+            throw;
+        }
+    }
 
     /// <inheritdoc/>
     public void Dispose()
@@ -61,6 +87,21 @@ internal sealed class KafkaEventProducer(
         }
         
         producer.Dispose();
+    }
+    
+    private static Headers CreateTraceHeaders(Activity? producerActivity)
+    {
+        var contextToInject = producerActivity?.Context ??
+                              Activity.Current?.Context ??
+                              default;
+
+        var propagationContext = new PropagationContext(contextToInject, Baggage.Current);
+
+        var headers = new Headers();
+        Propagators.DefaultTextMapPropagator.Inject(propagationContext, headers, static (carrier, key, value) => 
+                                                        carrier.Add(key, Encoding.UTF8.GetBytes(value)));
+
+        return headers;
     }
     
     private static KafkaPacketEvent CreateMessage(PacketEvent packetEvent) =>

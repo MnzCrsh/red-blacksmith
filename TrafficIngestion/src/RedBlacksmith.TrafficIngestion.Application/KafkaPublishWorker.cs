@@ -1,4 +1,5 @@
-﻿using System.Threading.Channels;
+﻿using System.Diagnostics;
+using System.Threading.Channels;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -96,37 +97,65 @@ internal sealed class KafkaPublishWorker(
                 }
             }
         }
-        catch (OperationCanceledException)
-            when(timeoutCts.IsCancellationRequested && !stoppingToken.IsCancellationRequested)
+        catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested && !stoppingToken.IsCancellationRequested)
         {
-            
+            // Тайм-аут формирования батча.
         }
 
         return batch;
     }
 
-    private async Task PublishWithRetryAsync(IReadOnlyList<PacketEvent> batch, CancellationToken stoppingToken)
+    private async Task PublishWithRetryAsync(List<PacketEvent> batch, CancellationToken stoppingToken)
     {
         var payload = KafkaEventProducer.PrepareBatch(batch);
         var retryDelayMs = RetryDefaultMs;
-
         
-        while (true)
+        var startedAt = Stopwatch.GetTimestamp();
+        using var activity = TrafficIngestionTelemetry.StartBatchPublish(payload.BatchId, batch.Count);
+
+        try
         {
-            try
+            while (true)
             {
-                await kafkaProducer.ProduceBatchAsync(payload, stoppingToken);
-                return;
-            }
-            catch (ProduceException<Null, byte[]> e) when (e.Error.IsFatal || e.Error.IsLocalError)
-            {
-                logger.LogWarning(e, "Kafka producer failed to publish batch with an ID: {BatchId}. Retry in {DelayMs} ms",
-                                  payload.BatchId, RetryDefaultMs);
+                try
+                {
+                    await kafkaProducer.ProduceBatchAsync(payload, stoppingToken);
+                    
+                    TrafficIngestionTelemetry.RecordBatchPublished(batch.Count);
+                    
+                    return;
+                }
+                catch (ProduceException<Null, byte[]> e) when (e.Error.IsFatal || e.Error.IsLocalError)
+                {
+                    TrafficIngestionTelemetry.RecordPublishRetry();
+                    
+                    logger.LogWarning(e, "Kafka producer failed to publish batch with an ID: {BatchId}. Retry in {DelayMs} ms",
+                                      payload.BatchId, RetryDefaultMs);
                 
-                await Task.Delay(RetryDefaultMs, stoppingToken);
+                    await Task.Delay(RetryDefaultMs, stoppingToken);
                 
-                retryDelayMs = Math.Min(retryDelayMs * 2, RetryMaxDelayMs);
+                    retryDelayMs = Math.Min(retryDelayMs * 2, RetryMaxDelayMs);
+                }
             }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            activity?.SetTag("operation.cancelled", true);
+
+            throw;
+        }
+        catch (Exception exception)
+        {
+            TrafficIngestionTelemetry.RecordPublishFailure();
+
+            TrafficIngestionTelemetry.RecordPublishError(
+                                                         activity, exception);
+
+            throw;
+        }
+        finally
+        {
+            TrafficIngestionTelemetry.RecordPublishDuration(Stopwatch.GetElapsedTime(startedAt));
         }
     }
 }
