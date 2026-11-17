@@ -5,7 +5,7 @@ namespace RedBlacksmith.TrafficIngestion.Models;
 /// <summary>
 /// Модель сетевого пакета.
 /// </summary>
-internal record PacketEvent
+public record PacketEvent
 {
     /// <summary>
     /// Идентификатор события.
