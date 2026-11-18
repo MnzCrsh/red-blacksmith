@@ -12,15 +12,21 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Google.Protobuf" Version="3.36.2" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.85.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.84.0">
+            <PrivateAssets>All</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    
+    <ItemGroup>
       <ProjectReference Include="..\RedBlacksmith.EndToEnd.Infrastracture\RedBlacksmith.EndToEnd.Infrastracture.csproj" />
-        
-      <ProjectReference Include="..\..\..\TrafficIngestion\src\RedBlacksmith.TrafficIngestion.Core\RedBlacksmith.TrafficIngestion.Core.csproj" />
-      <ProjectReference Include="..\..\..\TrafficIngestion\src\RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj" />
-      <ProjectReference Include="..\..\..\TrafficIngestion\src\RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\..\..\TrafficIngestion\src\RedBlacksmith.TrafficIngestion.Contracts\Protos\traffic_ingestion.proto" GrpcServices="Client" />
+        <Protobuf Include="..\..\..\TrafficIngestion\src\RedBlacksmith.TrafficIngestion.Contracts\Protos\traffic_ingestion.proto" 
+                  GrpcServices="Client" />
     </ItemGroup>
     
 </Project>

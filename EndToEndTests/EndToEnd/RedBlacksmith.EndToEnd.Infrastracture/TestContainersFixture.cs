@@ -1,5 +1,8 @@
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Networks;
 using Testcontainers.ClickHouse;
 using Testcontainers.Kafka;
 using Testcontainers.PostgreSql;
@@ -13,7 +16,17 @@ public class TestContainersFixture : IAsyncLifetime
     private const           string   KafkaImage      = "confluentinc/cp-kafka:7.5.12";
     private const           string   ClickHouseImage = "clickhouse/clickhouse-server:24.8";
     
+    private const string TrafficIngestionImage         = "redblacksmith/traffic-ingestion:local";
+    private const string KafkaInternalBootstrapServers = "kafka:29092";
+    private const ushort TrafficIngestionPort          = 8080;
+    
     private static readonly TimeSpan StartupTimeout  = TimeSpan.FromSeconds(90);
+    
+    /// <summary>
+    /// Локальная сеть.
+    /// </summary>
+    private readonly INetwork _network;
+    private bool _networkCreated;
     
     /// <summary>
     /// Имя основного Kafka-топика.
@@ -25,16 +38,38 @@ public class TestContainersFixture : IAsyncLifetime
     /// </summary>
     public const string DeadLetterTopic = "network.packet-events-dlq.v1";
     
-    private readonly PostgreSqlContainer _postgreSql =
-        new PostgreSqlBuilder(PostgreSqlImage)
-            .WithDatabase("traffic_tests")
-            .WithUsername("postgres")
-            .WithPassword("postgres")
-            .Build();
+    private readonly KafkaContainer _kafka;
+    private readonly PostgreSqlContainer _postgreSql;
+    private readonly ClickHouseContainer _clickHouse;
+    
+    private IContainer? _trafficIngestion;
 
-    private readonly KafkaContainer _kafka = new KafkaBuilder(KafkaImage).Build();
+    public TestContainersFixture()
+    {
+        _network = new NetworkBuilder()
+                   .WithName($"redblacksmith-e2e-{Guid.NewGuid():N}")
+                   .Build();
 
-    private readonly ClickHouseContainer _clickHouse = new ClickHouseBuilder(ClickHouseImage).Build();
+        _postgreSql = new PostgreSqlBuilder(PostgreSqlImage)
+                      .WithNetwork(_network)
+                      .WithNetworkAliases("postgres")
+                      .WithDatabase("traffic_tests")
+                      .WithUsername("postgres")
+                      .WithPassword("postgres")
+                      .Build();
+        
+        _kafka = new KafkaBuilder(KafkaImage)
+                 .WithKRaft()
+                 .WithNetwork(_network)
+                 .WithListener(KafkaInternalBootstrapServers)
+                 .Build();
+
+        _clickHouse = new ClickHouseBuilder(ClickHouseImage)
+                      .WithNetwork(_network)
+                      .WithNetworkAliases("clickhouse")
+                      .Build();
+        
+    }
     
     /// <summary>
     /// Строка подключения к PostgreSQL.
@@ -51,36 +86,80 @@ public class TestContainersFixture : IAsyncLifetime
     /// </summary>
     public string ClickHouseConnectionString => _clickHouse.GetConnectionString();
     
+    public Uri TrafficIngestionAddress
+    {
+        get
+        {
+            var container = _trafficIngestion 
+                            ?? throw new InvalidOperationException("TrafficIngestion ещё не запущен.");
+
+            return new UriBuilder(Uri.UriSchemeHttp, container.Hostname, container.GetMappedPublicPort(TrafficIngestionPort)).Uri;
+        }
+    }
+    
     /// <summary>
     /// Создаёт необходимые Kafka-топики.
     /// </summary>
-    private async Task CreateKafkaTopicsAsync()
-    {
-        using var adminClient = new AdminClientBuilder(new AdminClientConfig { BootstrapServers = KafkaBootstrapServers }).Build();
+    private async Task CreateKafkaTopicsAsync() =>
+        await new AdminClientBuilder(new AdminClientConfig { BootstrapServers = KafkaBootstrapServers })
+              .Build()
+              .CreateTopicsAsync(
+              [
+                  new TopicSpecification { Name = PacketEventsTopic, NumPartitions = 1, ReplicationFactor = 1 },
+                  new TopicSpecification { Name = DeadLetterTopic, NumPartitions = 1, ReplicationFactor = 1 }
+              ]);
 
-        await adminClient.CreateTopicsAsync(
-        [
-            new TopicSpecification
-            {
-                Name = PacketEventsTopic,
-                NumPartitions = 1,
-                ReplicationFactor = 1
-            },
-            new TopicSpecification
-            {
-                Name = DeadLetterTopic,
-                NumPartitions = 1,
-                ReplicationFactor = 1
-            }
-        ]);
-    }
-
-    public async ValueTask InitializeAsync()
+    /// <summary>
+    /// Запускает контейнер TrafficIngestion в общей Docker-сети.
+    /// </summary>
+    public async Task StartTrafficIngestionAsync()
     {
+        if (_trafficIngestion is not null)
+        {
+            return;
+        }
+
         using var timeoutCts = new CancellationTokenSource(StartupTimeout);
+
+        var container = new ContainerBuilder(TrafficIngestionImage)
+                        .WithNetwork(_network)
+                        .WithEnvironment("Kafka__BootstrapServers", KafkaInternalBootstrapServers)
+                        .WithEnvironment("Kafka__Topic", PacketEventsTopic)
+                        .WithPortBinding(TrafficIngestionPort, true)
+                        .WithWaitStrategy(
+                                          Wait.ForUnixContainer()
+                                              .UntilInternalTcpPortIsAvailable(TrafficIngestionPort))
+                        .Build();
 
         try
         {
+            await container.StartAsync(timeoutCts.Token);
+
+            _trafficIngestion = container;
+        }
+        catch (OperationCanceledException exception) when (timeoutCts.IsCancellationRequested)
+        {
+            await container.DisposeAsync();
+
+            throw new TimeoutException(
+                                       $"TrafficIngestion не запустился за {StartupTimeout}.",
+                                       exception);
+        }
+        catch
+        {
+            await container.DisposeAsync();
+            throw;
+        }
+    }
+    
+    public async ValueTask InitializeAsync()
+    {
+        using var timeoutCts = new CancellationTokenSource(StartupTimeout);
+        try
+        {
+            await _network.CreateAsync(timeoutCts.Token);
+            _networkCreated = true;
+
             await Task.WhenAll(_postgreSql.StartAsync(timeoutCts.Token),
                                _kafka.StartAsync(timeoutCts.Token),
                                _clickHouse.StartAsync(timeoutCts.Token));
@@ -90,7 +169,6 @@ public class TestContainersFixture : IAsyncLifetime
         catch (OperationCanceledException exception) when (timeoutCts.IsCancellationRequested)
         {
             await DisposeAsync();
-
             throw new TimeoutException($"Тестовая инфраструктура не запустилась за {StartupTimeout}.", exception);
         }
         catch
@@ -100,6 +178,34 @@ public class TestContainersFixture : IAsyncLifetime
         }
     }
     
-    public async ValueTask DisposeAsync() => 
-        await Task.WhenAll(_clickHouse.DisposeAsync().AsTask(), _kafka.DisposeAsync().AsTask(), _postgreSql.DisposeAsync().AsTask());
+    public async ValueTask DisposeAsync()
+    {
+        var trafficIngestion = _trafficIngestion;
+        _trafficIngestion = null;
+
+        List<Task> disposeTasks =
+        [
+            _clickHouse.DisposeAsync().AsTask(),
+            _kafka.DisposeAsync().AsTask(),
+            _postgreSql.DisposeAsync().AsTask()
+        ];
+
+        if (trafficIngestion is not null)
+        {
+            disposeTasks.Add(trafficIngestion.DisposeAsync().AsTask());
+        }
+
+        try
+        {
+            await Task.WhenAll(disposeTasks);
+        }
+        finally
+        {
+            if (_networkCreated)
+            {
+                await _network.DisposeAsync();
+                _networkCreated = false;
+            }
+        }
+    }
 }
