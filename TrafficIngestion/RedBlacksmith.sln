@@ -3,6 +3,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Core", "src\RedBlacksmith.TrafficIngestion.Core\RedBlacksmith.TrafficIngestion.Core.csproj", "{E606DD27-5835-4074-A0A1-FE532275FF55}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TrafficIngestion", "TrafficIngestion", "{0FCD42F0-565F-4772-9527-BA8896413377}"
+	ProjectSection(SolutionItems) = preProject
+		Dockerfile = Dockerfile
+		.dockerignore = .dockerignore
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.TrafficIngestion.Contracts", "src\RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj", "{A9ADAF61-7CFC-470E-97B2-4919C3215ACD}"
 EndProject

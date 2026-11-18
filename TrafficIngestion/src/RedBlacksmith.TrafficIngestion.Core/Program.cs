@@ -43,3 +43,4 @@ app.MapGet("/", () => "gRpc client allowed only.");
 
 app.Run();
 
+public partial class Program { }
