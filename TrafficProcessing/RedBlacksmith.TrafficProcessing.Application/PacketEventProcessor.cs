@@ -5,7 +5,7 @@ using RedBlacksmith.TrafficProcessing.Models.DomainModels;
 namespace RedBlacksmith.TrafficProcessing.Application;
 
 /// <inheritdoc/>
-internal class PacketEventProcessor(IPacketEventStore eventStore, IPacketEventProjectionWriter writer) 
+internal class PacketEventProcessor(IPacketEventStore eventStore, IPacketEventProjectionStore projectionStore) 
     : IPacketEventProcessor
 {
     /// <inheritdoc/>
@@ -45,7 +45,7 @@ internal class PacketEventProcessor(IPacketEventStore eventStore, IPacketEventPr
         Validate(batchId, events, cancellationToken);
 
         await eventStore.AppendBatchAsync(batchId, events, cancellationToken);
-        await writer.ApplyBatchAsync(batchId, events, cancellationToken);
+        await projectionStore.ApplyAsync(events, cancellationToken);
     }
 
     private static void Validate(Guid batchId, IReadOnlyList<PacketEvent> events, CancellationToken cancellationToken)

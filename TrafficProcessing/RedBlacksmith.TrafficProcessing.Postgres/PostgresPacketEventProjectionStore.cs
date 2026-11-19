@@ -121,19 +121,18 @@ public class PostgresPacketEventProjectionStore(NpgsqlDataSource dataSource) : I
         NpgsqlTransaction transaction,
         CancellationToken cancellationToken)
     {
+        await connection.ExecuteAsync(new CommandDefinition(CreateStageTableSql, transaction: transaction, cancellationToken: cancellationToken));
+        
         await using (var importer = await connection.BeginBinaryImportAsync(CopyStageSql, cancellationToken))
         {
-            await connection.ExecuteAsync(new CommandDefinition(CreateStageTableSql, transaction, cancellationToken: cancellationToken));
-            
             foreach (var packetEvent in events)
             {
                 await MapBinaryRecords(importer, packetEvent, cancellationToken);
             }
-
             await importer.CompleteAsync(cancellationToken);
         }
 
-        await connection.ExecuteAsync(new CommandDefinition(ApplyProjectionSql, transaction, cancellationToken: cancellationToken));
+        await connection.ExecuteAsync(new CommandDefinition(ApplyProjectionSql, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     private static async Task MapBinaryRecords(NpgsqlBinaryImporter importer, PacketEvent packetEvent, CancellationToken cancellationToken)

@@ -29,7 +29,8 @@ public static class KafkaServicesExtensions
             AutoOffsetReset = AutoOffsetReset.Earliest,
             EnableAutoCommit = false,
             EnableAutoOffsetStore = false,
-            MaxPollIntervalMs = int.TryParse(config["Kafka:MaxPollIntervalMs"], out var value) ? value : 5000,
+            MaxPollIntervalMs = int.TryParse(config["Kafka:MaxPollInterval"], out var intervalMs) ? intervalMs : 5000,
+            //SessionTimeoutMs = int.TryParse(config["Kafka:SessionTimeoutMs"], out var timeoutMs) ? timeoutMs : 2500,
         };
     }
 

@@ -14,9 +14,8 @@ public class MaterializedViewRefreshService(NpgsqlDataSource dataSource)
     public async Task RefreshSourceTrafficMinuteAsync(
         CancellationToken cancellationToken)
     {
-        await using var connection =
-            await dataSource.OpenConnectionAsync(cancellationToken);
-
-        await connection.ExecuteAsync(new CommandDefinition("SELECT traffic_read.refresh_source_traffic_minute();", cancellationToken: cancellationToken));
+        await using var connection = await dataSource.OpenConnectionAsync(cancellationToken);
+        await connection.ExecuteAsync(new CommandDefinition("SELECT traffic_read.refresh_source_traffic_minute();",
+                                                            cancellationToken: cancellationToken));
     }
 }
