@@ -18,6 +18,7 @@ internal sealed class KafkaConsumerWorker(
     IPacketEventProcessor eventProcessor,
     KafkaDeadLetterPublisher dlqPublisher,
     ILogger<KafkaConsumerWorker> logger,
+    KafkaConsumerReadinessState readinessState,
     ConsumerConfig consumerConfig) 
     : BackgroundService
 {
@@ -61,10 +62,12 @@ internal sealed class KafkaConsumerWorker(
 
         try
         {
+            readinessState.MarkStarted();
             await ConsumeMessage(consumer, stoppingToken);
         }
         finally
         {
+            readinessState.MarkStopped();
             consumer.Close();
         }
     }
@@ -255,13 +258,36 @@ internal sealed class KafkaConsumerWorker(
         }
     }
     
-    private IConsumer<Ignore, byte[]> CreateConsumer() =>
-        new ConsumerBuilder<Ignore, byte[]>(consumerConfig)
-            .SetKeyDeserializer(Deserializers.Ignore)
-            .SetValueDeserializer(Deserializers.ByteArray)
-            .SetErrorHandler((_, error) => logger.LogError("Kafka consumer error: {Reason}", error.Reason))
-            .Build();
-    
+    private IConsumer<Ignore, byte[]> CreateConsumer()
+    {
+        var builder = new ConsumerBuilder<Ignore, byte[]>(consumerConfig)
+                      .SetKeyDeserializer(Deserializers.Ignore)
+                      .SetValueDeserializer(Deserializers.ByteArray)
+                      .SetErrorHandler((_, error) => logger.LogError("Kafka consumer error: {Reason}", error.Reason));
+        
+        builder.SetPartitionsAssignedHandler((consumer, partitions) =>
+        {
+            var assignedCount = consumer.Assignment
+                                        .Concat(partitions)
+                                        .Distinct()
+                                        .Count();
+                   
+            readinessState.SetAssignedPartitions(assignedCount);
+            logger.LogInformation("Kafka consumer assigned {PartitionCount} partitions.", assignedCount);
+        });
+        
+        builder.SetPartitionsRevokedHandler((consumer, partitions) =>
+        {
+            var revokedPartitions = partitions.Select(static partition => partition.TopicPartition).ToHashSet();
+            var remainingCount = consumer.Assignment.Count(partition => !revokedPartitions.Contains(partition));
+                   
+            readinessState.SetAssignedPartitions(remainingCount);
+            logger.LogInformation("Kafka consumer has {PartitionCount} partitions remaining after rebalance.", remainingCount);
+        });
+        
+        return builder.Build();
+    }
+
     private void SubscribeToTopic(IConsumer<Ignore, byte[]> consumer)
     {
         var topic = configuration["Kafka:Topic"];

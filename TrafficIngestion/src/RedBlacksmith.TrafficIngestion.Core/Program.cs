@@ -1,5 +1,6 @@
 using System.Threading.Channels;
 using Confluent.Kafka;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using RedBlacksmith;
 using RedBlacksmith.HealthChecks;
@@ -54,6 +55,16 @@ var app = builder.Build();
 app.MapGrpcService<TrafficIngestionGrpcService>();
 
 app.MapGet("/", () => "gRpc client allowed only.");
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.Run();
 
