@@ -23,7 +23,7 @@ public class TestContainersFixture : IAsyncLifetime
     private const string TrafficProcessingGroupId      = "traffic-processing-e2e";
     
     private const ushort TrafficIngestionPort  = 8080;
-    private const ushort TrafficProcessingPort = 8080;
+    private const ushort TrafficProcessingPort = 8081;
     
     private static readonly TimeSpan StartupTimeout  = TimeSpan.FromSeconds(90);
     
@@ -189,10 +189,7 @@ public class TestContainersFixture : IAsyncLifetime
                         .WithEnvironment("ClickHouse__ConnectionString", ClickHouseInternalConnectionString)
                         .WithEnvironment("ClickHouse__Database", "traffic")
                         .WithEnvironment("Postgres__ConnectionString", PostgreSqlInternalConnectionString)
-                        .WithEnvironment("ASPNETCORE_HTTP_PORTS", TrafficProcessingPort.ToString())
-                        .WithWaitStrategy(
-                                          Wait.ForUnixContainer()
-                                              .UntilInternalTcpPortIsAvailable(TrafficProcessingPort))
+                        .WithWaitStrategy(Wait.ForUnixContainer().UntilInternalTcpPortIsAvailable(TrafficProcessingPort))
                         .Build();
 
         try
@@ -278,13 +275,13 @@ public class TestContainersFixture : IAsyncLifetime
         }
     }
     
-    public async Task<string> GetTrafficProcessingLogsAsync(CancellationToken cancellationToken = default) // Добавлено
+    public async Task<string> GetTrafficProcessingLogsAsync(CancellationToken cancellationToken = default)
     {
         var container = _trafficProcessing
                         ?? throw new InvalidOperationException("TrafficProcessing ещё не запущен.");
 
-        var (stdout, stderr) = await container.GetLogsAsync(ct: cancellationToken); // Добавлено
+        var (stdout, stderr) = await container.GetLogsAsync(ct: cancellationToken);
 
-        return $"STDOUT:{Environment.NewLine}{stdout}{Environment.NewLine}STDERR:{Environment.NewLine}{stderr}"; // Добавлено
+        return $"STDOUT:{Environment.NewLine}{stdout}{Environment.NewLine}STDERR:{Environment.NewLine}{stderr}";
     }
 }

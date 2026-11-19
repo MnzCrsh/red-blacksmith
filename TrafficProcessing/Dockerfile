@@ -5,6 +5,8 @@ ARG BUILD_CONFIGURATION=Release
 
 WORKDIR /src
 
+EXPOSE 8081
+
 COPY ["src/RedBlacksmith.TrafficProcessing.Core/RedBlacksmith.TrafficProcessing.Core.csproj", "src/RedBlacksmith.TrafficProcessing.Core/"]
 COPY ["RedBlacksmith.TrafficProcessing.Application/RedBlacksmith.TrafficProcessing.Application.csproj", "RedBlacksmith.TrafficProcessing.Application/"]
 COPY ["RedBlacksmith.TrafficProcessing.Contracts/RedBlacksmith.TrafficProcessing.Contracts.csproj", "RedBlacksmith.TrafficProcessing.Contracts/"]
@@ -31,5 +33,6 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 USER $APP_UID
+
 
 ENTRYPOINT ["dotnet", "RedBlacksmith.TrafficProcessing.Core.dll"]
