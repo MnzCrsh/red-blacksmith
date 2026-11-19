@@ -9,6 +9,8 @@
         <IsTestProject>true</IsTestProject>
 
         <OutputType>Exe</OutputType>
+
+        <RootNamespace>RedBlacksmith.EndToEnd.TrafficProcessing</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

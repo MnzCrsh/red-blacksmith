@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.EndToEnd.Infr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.EndToEnd.TrafficIngestionTests", "RedBlacksmith.EndToEnd.TrafficIngestionTests\RedBlacksmith.EndToEnd.TrafficIngestionTests.csproj", "{A819DB95-26CD-4CC6-A092-6FFDA5ACB5C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.EndToEnd.TrafficProcessing", "RedBlacksmith.EndToEnd.TrafficProcessing\RedBlacksmith.EndToEnd.TrafficProcessing.csproj", "{BED1D9F7-2F3A-4C3E-9621-BBC5AC77F30B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RedBlacksmith.EndToEnd.TrafficProcessingTests", "RedBlacksmith.EndToEnd.TrafficProcessingTests\RedBlacksmith.EndToEnd.TrafficProcessingTests.csproj", "{BED1D9F7-2F3A-4C3E-9621-BBC5AC77F30B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

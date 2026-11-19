@@ -3,6 +3,7 @@
 WORKDIR /app
 
 EXPOSE 8080
+EXPOSE 8081
 
 ENV ASPNETCORE_HTTP_PORTS=8080 \
     Kestrel__EndpointDefaults__Protocols=Http2
@@ -16,6 +17,7 @@ WORKDIR /src
 COPY ["src/RedBlacksmith.TrafficIngestion.Core/RedBlacksmith.TrafficIngestion.Core.csproj", "src/RedBlacksmith.TrafficIngestion.Core/"]
 COPY ["src/RedBlacksmith.TrafficIngestion.Application/RedBlacksmith.TrafficIngestion.Application.csproj", "src/RedBlacksmith.TrafficIngestion.Application/"]
 COPY ["src/RedBlacksmith.TrafficIngestion.Contracts/RedBlacksmith.TrafficIngestion.Contracts.csproj", "src/RedBlacksmith.TrafficIngestion.Contracts/"]
+COPY ["src/RedBlacksmith.TrafficIngestion.HealthChecks/RedBlacksmith.TrafficIngestion.HealthChecks.csproj", "src/RedBlacksmith.TrafficIngestion.HealthChecks/"]
 
 RUN dotnet restore "src/RedBlacksmith.TrafficIngestion.Core/RedBlacksmith.TrafficIngestion.Core.csproj"
 
