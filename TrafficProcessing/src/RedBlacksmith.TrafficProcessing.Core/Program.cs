@@ -10,7 +10,7 @@ var services = builder.Services;
 
 services.AddObservability()
         .AddApplicationServices()
-        .AddPostgresServices()
+        .AddPostgresServices(builder.Configuration)
         .AddClickhouseServices(builder.Configuration)
         .AddKafkaServices();
 

@@ -1,5 +1,3 @@
-CREATE DATABASE IF NOT EXISTS traffic;
-
 CREATE TABLE IF NOT EXISTS {{database}}.packet_events
 (
     event_id UUID COMMENT 'Идентификатор события',
