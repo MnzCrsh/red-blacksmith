@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\RedBlacksmith.TrafficIngestion.HealthChecks\RedBlacksmith.TrafficIngestion.HealthChecks.csproj" />
       <ProjectReference Include="..\RedBlacksmith.TrafficIngestion.Application\RedBlacksmith.TrafficIngestion.Application.csproj" />
       <ProjectReference Include="..\RedBlacksmith.TrafficIngestion.Contracts\RedBlacksmith.TrafficIngestion.Contracts.csproj" />
     </ItemGroup>
