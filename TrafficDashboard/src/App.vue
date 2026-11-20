@@ -112,7 +112,7 @@ async function loadTraffic(): Promise<void> {
   errorMessage.value = '';
 
   if (!sourceId.value.trim()) {
-    errorMessage.value = 'Укажи UUID источника трафика.';
+    errorMessage.value = 'Укажите UUID источника трафика.';
     return;
   }
 
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
 
           <div>
             <div class="brand-name">REDBLACKSMITH</div>
-            <div class="brand-caption">TRAFFIC INTELLIGENCE</div>
+            <div class="brand-caption">TRAFFIC EYE</div>
           </div>
         </div>
 
@@ -280,7 +280,7 @@ onBeforeUnmount(() => {
 
             <div>
               <h2>Traffic query</h2>
-              <p>Выбери источник и временной диапазон</p>
+              <p>Выберите источник и временной диапазон</p>
             </div>
           </div>
 
@@ -408,13 +408,13 @@ onBeforeUnmount(() => {
         <section class="glass-panel content-panel">
           <div class="panel-heading">
             <div>
-              <h2>Traffic activity</h2>
+              <h2>Сетевая активность</h2>
               <p>Количество пакетов и объём переданных данных</p>
             </div>
 
             <div class="panel-period">
               <Zap :size="14" />
-              MINUTE AGGREGATION
+              Агреггированные за минуту
             </div>
           </div>
 
@@ -432,7 +432,7 @@ onBeforeUnmount(() => {
             </div>
 
             <p>
-              Укажи Source ID и нажми Load data, чтобы загрузить статистику.
+              Укажите Source ID и нажмите Load data, чтобы загрузить статистику.
             </p>
           </div>
 
@@ -450,7 +450,7 @@ onBeforeUnmount(() => {
         <section class="glass-panel content-panel">
           <div class="panel-heading">
             <div>
-              <h2>Recent traffic records</h2>
+              <h2>Недавние сетевые записи</h2>
               <p>Последние минутные агрегаты</p>
             </div>
 
@@ -501,7 +501,7 @@ onBeforeUnmount(() => {
         <section class="glass-panel content-panel">
           <div class="panel-heading">
             <div>
-              <h2>Infrastructure observability</h2>
+              <h2>Анализ инфраструктуры</h2>
               <p>Метрики и мониторинг платформы</p>
             </div>
 

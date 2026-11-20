@@ -23,7 +23,7 @@ defineProps<{
       <h3>Grafana dashboard</h3>
 
       <p>
-        Укажи VITE_GRAFANA_DASHBOARD_URL в конфигурации окружения.
+        Укажите VITE_GRAFANA_DASHBOARD_URL в конфигурации окружения.
       </p>
     </div>
   </div>
@@ -34,7 +34,7 @@ defineProps<{
   min-height: 420px;
   overflow: hidden;
   border-radius: 18px;
-  background: rgba(15, 23, 42, 0.35);
+  background: rgb(243 170 101);
 }
 
 .grafana-frame iframe {
