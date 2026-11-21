@@ -1,0 +1,30 @@
+fullnameOverride: postgresql
+
+architecture: standalone
+
+auth:
+  enablePostgresUser: true
+  database: traffic
+  existingSecret: redblacksmith-secrets
+
+  secretKeys:
+    adminPasswordKey: POSTGRES_SUPERUSER_PASSWORD
+
+primary:
+  service:
+    type: ClusterIP
+
+  persistence:
+    enabled: true
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 20Gi
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi

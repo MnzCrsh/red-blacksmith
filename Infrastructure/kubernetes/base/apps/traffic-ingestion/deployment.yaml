@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: traffic-ingestion
+
+  labels:
+    app.kubernetes.io/name: traffic-ingestion
+    app.kubernetes.io/part-of: red-blacksmith
+
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traffic-ingestion
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: traffic-ingestion
+        app.kubernetes.io/part-of: red-blacksmith
+
+    spec:
+      terminationGracePeriodSeconds: 30
+
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: traffic-ingestion
+
+          image: redblacksmith/traffic-ingestion:local
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: grpc
+              containerPort: 8080
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: redblacksmith-config
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+
+            limits:
+              cpu: "1"
+              memory: 512Mi
+
+          startupProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 5
+            failureThreshold: 30
+
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 10
+            failureThreshold: 3
+
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            periodSeconds: 5
+            failureThreshold: 3

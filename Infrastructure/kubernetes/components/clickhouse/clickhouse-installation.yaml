@@ -1,0 +1,96 @@
+apiVersion: clickhouse.altinity.com/v1
+kind: ClickHouseInstallation
+
+metadata:
+  name: clickhouse
+
+spec:
+  configuration:
+    users:
+      clickhouse/password:
+        valueFrom:
+          secretKeyRef:
+            name: redblacksmith-secrets
+            key: CLICKHOUSE_PASSWORD
+
+      clickhouse/networks/ip:
+        - "0.0.0.0/0"
+
+    clusters:
+      - name: default
+
+        layout:
+          shardsCount: 1
+          replicasCount: 1
+
+        templates:
+          podTemplate: clickhouse-pod
+          clusterServiceTemplate: clickhouse-service
+
+  defaults:
+    templates:
+      dataVolumeClaimTemplate: clickhouse-data
+
+  templates:
+    podTemplates:
+      - name: clickhouse-pod
+
+        spec:
+          containers:
+            - name: clickhouse
+
+              image: clickhouse/clickhouse-server:26.8
+
+              ports:
+                - name: http
+                  containerPort: 8123
+                  protocol: TCP
+
+                - name: client
+                  containerPort: 9000
+                  protocol: TCP
+
+                - name: interserver
+                  containerPort: 9009
+                  protocol: TCP
+
+              volumeMounts:
+                - name: clickhouse-data
+                  mountPath: /var/lib/clickhouse
+
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 1Gi
+
+                limits:
+                  cpu: "2"
+                  memory: 3Gi
+
+    volumeClaimTemplates:
+      - name: clickhouse-data
+
+        spec:
+          accessModes:
+            - ReadWriteOnce
+
+          resources:
+            requests:
+              storage: 20Gi
+
+    serviceTemplates:
+      - name: clickhouse-service
+
+        generateName: clickhouse
+
+        spec:
+          type: ClusterIP
+
+          ports:
+            - name: http
+              port: 8123
+              targetPort: 8123
+
+            - name: client
+              port: 9000
+              targetPort: 9000
