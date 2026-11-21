@@ -1,0 +1,60 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: redblacksmith-traffic-rules
+  namespace: observability
+  labels:
+    app.kubernetes.io/name: redblacksmith-observability
+    app.kubernetes.io/part-of: red-blacksmith
+spec:
+  groups:
+    - name: redblacksmith.traffic.ingestion
+      rules:
+        - alert: TrafficIngestionRejectedEvents
+          expr: sum(rate(traffic_ingestion_events_rejected_total[5m])) > 0
+          for: 2m
+          labels:
+            severity: warning
+          annotations:
+            summary: Traffic Ingestion отклоняет события
+            description: За последние пять минут наблюдаются отклонённые события.
+
+        - alert: TrafficIngestionKafkaPublishFailures
+          expr: sum(rate(traffic_ingestion_kafka_publish_failures_total[5m])) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: Ошибки публикации Traffic Ingestion в Kafka
+            description: За последние пять минут зарегистрированы ошибки Kafka Producer.
+
+    - name: redblacksmith.traffic.processing
+      rules:
+        - alert: TrafficProcessingFailedBatches
+          expr: sum(rate(traffic_processing_batches_failed_total[5m])) > 0
+          for: 1m
+          labels:
+            severity: critical
+          annotations:
+            summary: Traffic Processing не смог обработать batch
+            description: За последние пять минут зарегистрированы неудачные batch-операции.
+
+    - name: redblacksmith.kubernetes
+      rules:
+        - alert: RedBlacksmithPodNotReady
+          expr: kube_pod_status_ready{namespace="redblacksmith", condition="false"} == 1
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: Pod RedBlacksmith не готов
+            description: Pod {{ $labels.pod }} находится в состоянии NotReady более пяти минут.
+
+        - alert: RedBlacksmithContainerRestarted
+          expr: increase(kube_pod_container_status_restarts_total{namespace="redblacksmith"}[10m]) > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: Контейнер RedBlacksmith перезапускался
+            description: Контейнер {{ $labels.container }} в Pod {{ $labels.pod }} перезапускался за последние десять минут.

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: traffic-ingestion
+
+  labels:
+    app.kubernetes.io/name: traffic-ingestion
+    app.kubernetes.io/part-of: red-blacksmith
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app.kubernetes.io/name: traffic-ingestion
+
+  ports:
+    - name: grpc
+      appProtocol: kubernetes.io/h2c
+      protocol: TCP
+      port: 8080
+      targetPort: grpc

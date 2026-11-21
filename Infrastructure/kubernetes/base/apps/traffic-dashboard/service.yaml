@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: traffic-dashboard
+
+  labels:
+    app.kubernetes.io/name: traffic-dashboard
+    app.kubernetes.io/part-of: red-blacksmith
+
+spec:
+  type: ClusterIP
+
+  selector:
+    app.kubernetes.io/name: traffic-dashboard
+
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8080
+      targetPort: http

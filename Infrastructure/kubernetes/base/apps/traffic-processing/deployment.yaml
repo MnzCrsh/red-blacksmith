@@ -1,0 +1,93 @@
+
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: traffic-processing
+  labels:
+    app.kubernetes.io/name: traffic-processing
+    app.kubernetes.io/part-of: red-blacksmith
+
+spec:
+  replicas: 1
+  revisionHistoryLimit: 2
+
+  strategy:
+    type: Recreate
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: traffic-processing
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: traffic-processing
+        app.kubernetes.io/part-of: red-blacksmith
+
+    spec:
+      terminationGracePeriodSeconds: 60
+
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+
+      containers:
+        - name: traffic-processing
+          image: redblacksmith/traffic-processing:local
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: redblacksmith-config
+
+          env:
+            - name: POSTGRES_PROCESSING_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redblacksmith-secrets
+                  key: POSTGRES_PROCESSING_PASSWORD
+
+            - name: CLICKHOUSE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redblacksmith-secrets
+                  key: CLICKHOUSE_PASSWORD
+
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3

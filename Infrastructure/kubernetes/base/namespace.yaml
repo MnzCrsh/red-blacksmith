@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+
+metadata:
+  name: redblacksmith
+
+  labels:
+    app.kubernetes.io/name: redblacksmith
+    app.kubernetes.io/part-of: red-blacksmith
+    app.kubernetes.io/managed-by: kustomize

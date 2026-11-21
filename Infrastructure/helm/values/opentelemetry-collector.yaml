@@ -1,0 +1,121 @@
+mode: deployment
+replicaCount: 1
+fullnameOverride: otel-collector
+
+image:
+  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  pullPolicy: IfNotPresent
+
+command:
+  name: otelcol-k8s
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+service:
+  enabled: true
+  type: ClusterIP
+
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    hostPort: null
+    protocol: TCP
+    appProtocol: grpc
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    hostPort: null
+    protocol: TCP
+  jaeger-compact:
+    enabled: false
+  jaeger-thrift:
+    enabled: false
+  jaeger-grpc:
+    enabled: false
+  zipkin:
+    enabled: false
+  metrics:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    hostPort: null
+    protocol: TCP
+
+serviceMonitor:
+  enabled: true
+  extraLabels:
+    release: monitoring
+  metricsEndpoints:
+    - port: metrics
+      path: /metrics
+      interval: 15s
+
+config:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: ${env:MY_POD_IP}:4317
+        http:
+          endpoint: ${env:MY_POD_IP}:4318
+    jaeger: null
+    prometheus: null
+    zipkin: null
+
+  processors:
+    memory_limiter:
+      check_interval: 5s
+      limit_percentage: 75
+      spike_limit_percentage: 15
+    batch:
+      send_batch_size: 1024
+      timeout: 5s
+
+  exporters:
+    debug: null
+    prometheus:
+      endpoint: ${env:MY_POD_IP}:8889
+      send_timestamps: true
+      metric_expiration: 5m
+      resource_to_telemetry_conversion:
+        enabled: true
+    otlp/tempo:
+      endpoint: tempo.observability.svc.cluster.local:4317
+      tls:
+        insecure: true
+      sending_queue:
+        enabled: true
+        queue_size: 1000
+      retry_on_failure:
+        enabled: true
+
+  service:
+    extensions:
+      - health_check
+    pipelines:
+      logs: null
+      metrics:
+        receivers:
+          - otlp
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - prometheus
+      traces:
+        receivers:
+          - otlp
+        processors:
+          - memory_limiter
+          - batch
+        exporters:
+          - otlp/tempo
