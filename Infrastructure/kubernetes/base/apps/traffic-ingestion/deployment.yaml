@@ -1,9 +1,9 @@
+
 apiVersion: apps/v1
 kind: Deployment
 
 metadata:
   name: traffic-ingestion
-
   labels:
     app.kubernetes.io/name: traffic-ingestion
     app.kubernetes.io/part-of: red-blacksmith
@@ -32,13 +32,16 @@ spec:
 
       containers:
         - name: traffic-ingestion
-
           image: redblacksmith/traffic-ingestion:local
           imagePullPolicy: IfNotPresent
 
           ports:
             - name: grpc
               containerPort: 8080
+              protocol: TCP
+
+            - name: http-health
+              containerPort: 8081
               protocol: TCP
 
           envFrom:
@@ -49,25 +52,30 @@ spec:
             requests:
               cpu: 100m
               memory: 128Mi
-
             limits:
               cpu: "1"
               memory: 512Mi
 
           startupProbe:
-            tcpSocket:
-              port: grpc
+            httpGet:
+              path: /health/live
+              port: http-health
             periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 30
 
           livenessProbe:
-            tcpSocket:
-              port: grpc
+            httpGet:
+              path: /health/live
+              port: http-health
             periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 3
 
           readinessProbe:
-            tcpSocket:
-              port: grpc
+            httpGet:
+              path: /health/ready
+              port: http-health
             periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 3

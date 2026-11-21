@@ -1,9 +1,9 @@
+
 apiVersion: apps/v1
 kind: Deployment
 
 metadata:
   name: traffic-processing
-
   labels:
     app.kubernetes.io/name: traffic-processing
     app.kubernetes.io/part-of: red-blacksmith
@@ -35,7 +35,6 @@ spec:
 
       containers:
         - name: traffic-processing
-
           image: redblacksmith/traffic-processing:local
           imagePullPolicy: IfNotPresent
 
@@ -65,25 +64,30 @@ spec:
             requests:
               cpu: 250m
               memory: 512Mi
-
             limits:
               cpu: "2"
               memory: 2Gi
 
           startupProbe:
-            tcpSocket:
+            httpGet:
+              path: /health/live
               port: http
             periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 60
 
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health/live
               port: http
             periodSeconds: 10
+            timeoutSeconds: 2
             failureThreshold: 3
 
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /health/ready
               port: http
             periodSeconds: 5
+            timeoutSeconds: 3
             failureThreshold: 3

@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-traffic-overview
+  namespace: observability
+  labels:
+    grafana_dashboard: "1"
+    app.kubernetes.io/name: redblacksmith-observability
+    app.kubernetes.io/part-of: red-blacksmith
+data:
+  traffic-overview.json: |
+    {
+      "uid": "traffic-overview",
+      "title": "RedBlacksmith / Traffic Overview",
+      "tags": ["redblacksmith", "traffic", "dotnet"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": { "from": "now-1h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "Ingestion: accepted events / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_accepted_total[1m]))", "legendFormat": "accepted" }]
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "Ingestion: rejected events / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_rejected_total[1m]))", "legendFormat": "rejected" }]
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "Kafka: published events / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_events_published_total[1m]))", "legendFormat": "published" }]
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "Processing: handled events / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_events_handled_total[1m]))", "legendFormat": "handled" }]
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "Kafka: producer retries and failures / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [
+            { "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_publish_retries_total[1m]))", "legendFormat": "retries" },
+            { "refId": "B", "expr": "sum(rate(traffic_ingestion_kafka_publish_failures_total[1m]))", "legendFormat": "failures" }
+          ]
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "Processing: failed batches / sec",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_batches_failed_total[1m]))", "legendFormat": "failed batches" }]
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "Ingestion: channel write p95",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+          "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum(rate(traffic_ingestion_channel_write_duration_seconds_bucket[5m])) by (le))", "legendFormat": "p95" }]
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "Processing: batch duration p95",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 24 },
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "fieldConfig": { "defaults": { "unit": "ms" }, "overrides": [] },
+          "targets": [{ "refId": "A", "expr": "histogram_quantile(0.95, sum(rate(traffic_processing_batch_duration_milliseconds_bucket[5m])) by (le))", "legendFormat": "p95" }]
+        }
+      ]
+    }

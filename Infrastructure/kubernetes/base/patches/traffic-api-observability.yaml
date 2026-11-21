@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traffic-api
+spec:
+  template:
+    spec:
+      containers:
+        - name: traffic-api
+          env:
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: redblacksmith-observability-config
+                  key: OTEL_EXPORTER_OTLP_ENDPOINT
+            - name: OTEL_EXPORTER_OTLP_PROTOCOL
+              valueFrom:
+                configMapKeyRef:
+                  name: redblacksmith-observability-config
+                  key: OTEL_EXPORTER_OTLP_PROTOCOL
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              valueFrom:
+                configMapKeyRef:
+                  name: redblacksmith-observability-config
+                  key: OTEL_RESOURCE_ATTRIBUTES
