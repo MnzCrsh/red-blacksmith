@@ -25,7 +25,7 @@ data:
           "title": "Ingestion: accepted events / sec",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_accepted_total[1m]))", "legendFormat": "accepted" }]
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_accepted_total[5m]))", "legendFormat": "accepted" }]
         },
         {
           "id": 2,
@@ -33,7 +33,7 @@ data:
           "title": "Ingestion: rejected events / sec",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_rejected_total[1m]))", "legendFormat": "rejected" }]
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_events_rejected_total[5m]))", "legendFormat": "rejected" }]
         },
         {
           "id": 3,
@@ -41,7 +41,7 @@ data:
           "title": "Kafka: published events / sec",
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_events_published_total[1m]))", "legendFormat": "published" }]
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_events_published_total[5m]))", "legendFormat": "published" }]
         },
         {
           "id": 4,
@@ -49,7 +49,7 @@ data:
           "title": "Processing: handled events / sec",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_events_handled_total[1m]))", "legendFormat": "handled" }]
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_events_handled_total[5m]))", "legendFormat": "handled" }]
         },
         {
           "id": 5,
@@ -58,8 +58,8 @@ data:
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
           "targets": [
-            { "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_publish_retries_total[1m]))", "legendFormat": "retries" },
-            { "refId": "B", "expr": "sum(rate(traffic_ingestion_kafka_publish_failures_total[1m]))", "legendFormat": "failures" }
+            { "refId": "A", "expr": "sum(rate(traffic_ingestion_kafka_publish_retries_total[5m]))", "legendFormat": "retries" },
+            { "refId": "B", "expr": "sum(rate(traffic_ingestion_kafka_publish_failures_total[5m]))", "legendFormat": "failures" }
           ]
         },
         {
@@ -68,7 +68,7 @@ data:
           "title": "Processing: failed batches / sec",
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_batches_failed_total[1m]))", "legendFormat": "failed batches" }]
+          "targets": [{ "refId": "A", "expr": "sum(rate(traffic_processing_batches_failed_total[5m]))", "legendFormat": "failed batches" }]
         },
         {
           "id": 7,

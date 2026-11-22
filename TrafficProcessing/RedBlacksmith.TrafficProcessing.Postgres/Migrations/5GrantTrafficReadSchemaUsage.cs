@@ -5,7 +5,7 @@ namespace RedBlacksmith.TrafficProcessing.Postgres.Migrations;
 /// <summary>
 /// Выдаёт runtime-роли право обращаться к схеме аналитических представлений.
 /// </summary>
-[Migration(202611220001)]
+[Migration(20261122193200)]
 public class GrantTrafficReadSchemaUsage : Migration
 {
     /// <summary>
