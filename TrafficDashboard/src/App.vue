@@ -20,10 +20,12 @@ import {
 
 import TrafficChart from '@/components/TrafficChart.vue';
 import GrafanaPanel from '@/components/GrafanaPanel.vue';
-import { getSourceTrafficMinute } from '@/api/trafficApi';
-import type { SourceTrafficMinute } from '@/types/traffic';
+import { getTrafficMinuteAnalytics } from '@/api/trafficApi';
+import type { TrafficMinuteAnalytics } from '@/types/traffic';
 
 const grafanaUrl = import.meta.env.VITE_GRAFANA_DASHBOARD_URL ?? '';
+
+const selectedProjection = ref('source_traffic_minute');
 
 const now = new Date();
 
@@ -35,11 +37,13 @@ function toLocalDateTime(value: Date): string {
   return localDate.toISOString().slice(0, 16);
 }
 
-const sourceId = ref('');
-const fromUtc = ref(toLocalDateTime(new Date(now.getTime() - 60 * 60 * 1000)));
+const fromUtc = ref(
+    toLocalDateTime(new Date(now.getTime() - 60 * 60 * 1000)),
+);
+
 const toUtc = ref(toLocalDateTime(now));
 
-const records = ref<SourceTrafficMinute[]>([]);
+const records = ref<TrafficMinuteAnalytics[]>([]);
 const loading = ref(false);
 const errorMessage = ref('');
 const loadedAt = ref<Date | null>(null);
@@ -49,13 +53,25 @@ let activeController: AbortController | null = null;
 const hasData = computed(() => records.value.length > 0);
 
 const totalPackets = computed(() =>
-    records.value.reduce((total, item) => total + item.packetCount, 0),
+    records.value.reduce(
+        (total, item) => total + item.packetCount,
+        0,
+    ),
 );
 
 const totalBytes = computed(() =>
-    records.value.reduce((total, item) => total + item.totalBytes, 0),
+    records.value.reduce(
+        (total, item) => total + item.totalBytes,
+        0,
+    ),
 );
 
+/**
+ * Вычисляет среднее количество уникальных назначений по минутным точкам.
+ *
+ * Значение является суммой уникальных назначений отдельных источников,
+ * а не глобальным количеством уникальных IP между всеми источниками.
+ */
 const averageDestinations = computed(() => {
   if (!hasData.value) {
     return 0;
@@ -63,7 +79,7 @@ const averageDestinations = computed(() => {
 
   return Math.round(
       records.value.reduce(
-          (total, item) => total + item.uniqueDestinationCount,
+          (total, item) => total + item.destinationCount,
           0,
       ) / records.value.length,
   );
@@ -87,9 +103,12 @@ function formatCompact(value: number): string {
 }
 
 function formatBytes(value: number): string {
-  if (value === 0) return '0 B';
+  if (value === 0) {
+    return '0 B';
+  }
 
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+
   const exponent = Math.min(
       Math.floor(Math.log(value) / Math.log(1024)),
       units.length - 1,
@@ -106,18 +125,13 @@ function formatTimestamp(value: string): string {
 }
 
 /**
- * Загружает минутную статистику из Traffic API.
+ * Загружает минутную статистику выбранной проекции.
  */
 async function loadTraffic(): Promise<void> {
   errorMessage.value = '';
 
-  if (!sourceId.value.trim()) {
-    errorMessage.value = 'Укажите UUID источника трафика.';
-    return;
-  }
-
-  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sourceId.value.trim())) {
-    errorMessage.value = 'Некорректный UUID источника.';
+  if (selectedProjection.value !== 'source_traffic_minute') {
+    errorMessage.value = 'Выбранная проекция пока не поддерживается.';
     return;
   }
 
@@ -141,9 +155,8 @@ async function loadTraffic(): Promise<void> {
   loading.value = true;
 
   try {
-    records.value = await getSourceTrafficMinute(
+    records.value = await getTrafficMinuteAnalytics(
         {
-          sourceId: sourceId.value.trim(),
           fromUtc: from,
           toUtc: to,
         },
@@ -280,34 +293,41 @@ onBeforeUnmount(() => {
 
             <div>
               <h2>Traffic query</h2>
-              <p>Выберите источник и временной диапазон</p>
+              <p>Выберите аналитическую проекцию и временной диапазон</p>
             </div>
           </div>
 
           <form class="filter-grid" @submit.prevent="loadTraffic">
             <label class="filter-field source-field">
-              <span>Source ID</span>
-              <input
-                  v-model="sourceId"
-                  type="text"
-                  placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                  spellcheck="false"
-              />
+              <span>Data projection</span>
+
+              <select
+                  v-model="selectedProjection"
+                  :disabled="loading"
+              >
+                <option value="source_traffic_minute">
+                  source_traffic_minute
+                </option>
+              </select>
             </label>
 
             <label class="filter-field">
               <span>From</span>
+
               <input
                   v-model="fromUtc"
                   type="datetime-local"
+                  :disabled="loading"
               />
             </label>
 
             <label class="filter-field">
               <span>To</span>
+
               <input
                   v-model="toUtc"
                   type="datetime-local"
+                  :disabled="loading"
               />
             </label>
 
@@ -320,6 +340,7 @@ onBeforeUnmount(() => {
                   :size="16"
                   :class="{ spinning: loading }"
               />
+
               {{ loading ? 'Loading...' : 'Load data' }}
             </button>
           </form>
@@ -334,6 +355,7 @@ onBeforeUnmount(() => {
           <article class="metric-card glass-panel">
             <div class="metric-header">
               <span>PACKETS PROCESSED</span>
+
               <div class="metric-icon cyan">
                 <Layers3 :size="19" />
               </div>
@@ -352,6 +374,7 @@ onBeforeUnmount(() => {
           <article class="metric-card glass-panel">
             <div class="metric-header">
               <span>TRAFFIC VOLUME</span>
+
               <div class="metric-icon violet">
                 <ArrowDownToLine :size="19" />
               </div>
@@ -370,6 +393,7 @@ onBeforeUnmount(() => {
           <article class="metric-card glass-panel">
             <div class="metric-header">
               <span>DESTINATIONS / MIN</span>
+
               <div class="metric-icon emerald">
                 <Wifi :size="19" />
               </div>
@@ -381,13 +405,14 @@ onBeforeUnmount(() => {
 
             <div class="metric-footer">
               <span class="metric-accent">Average</span>
-              <span>Уникальные IP назначения</span>
+              <span>Сумма по источникам</span>
             </div>
           </article>
 
           <article class="metric-card glass-panel">
             <div class="metric-header">
               <span>TIME BUCKETS</span>
+
               <div class="metric-icon amber">
                 <Clock3 :size="19" />
               </div>
@@ -414,7 +439,7 @@ onBeforeUnmount(() => {
 
             <div class="panel-period">
               <Zap :size="14" />
-              Агреггированные за минуту
+              Агрегированные данные за минуту
             </div>
           </div>
 
@@ -432,15 +457,17 @@ onBeforeUnmount(() => {
             </div>
 
             <p>
-              Укажите Source ID и нажмите Load data, чтобы загрузить статистику.
+              Выберите временной диапазон и нажмите Load data,
+              чтобы загрузить статистику.
             </p>
           </div>
 
           <div v-if="loadedAt" class="chart-footer">
-            <span>
-              <span class="status-pulse" />
-              Последнее обновление: {{ loadedAt.toLocaleTimeString('ru-RU') }}
-            </span>
+                        <span>
+                            <span class="status-pulse" />
+                            Последнее обновление:
+                            {{ loadedAt.toLocaleTimeString('ru-RU') }}
+                        </span>
 
             <span>{{ records.length }} records</span>
           </div>
@@ -451,7 +478,7 @@ onBeforeUnmount(() => {
           <div class="panel-heading">
             <div>
               <h2>Недавние сетевые записи</h2>
-              <p>Последние минутные агрегаты</p>
+              <p>Последние минутные агрегаты по всем источникам</p>
             </div>
 
             <div class="records-count">
@@ -463,7 +490,7 @@ onBeforeUnmount(() => {
             <table>
               <thead>
               <tr>
-                <th>TIME (UTC)</th>
+                <th>TIME</th>
                 <th>PACKETS</th>
                 <th>DATA VOLUME</th>
                 <th>DESTINATIONS</th>
@@ -471,7 +498,10 @@ onBeforeUnmount(() => {
               </thead>
 
               <tbody>
-              <tr v-for="record in recentRecords" :key="record.bucketStartUtc">
+              <tr
+                  v-for="record in recentRecords"
+                  :key="record.bucketStartUtc"
+              >
                 <td class="table-time">
                   {{ formatTimestamp(record.bucketStartUtc) }}
                 </td>
@@ -481,9 +511,9 @@ onBeforeUnmount(() => {
                 <td>{{ formatBytes(record.totalBytes) }}</td>
 
                 <td>
-                    <span class="destination-badge">
-                      {{ record.uniqueDestinationCount }}
-                    </span>
+                                        <span class="destination-badge">
+                                            {{ formatNumber(record.destinationCount) }}
+                                        </span>
                 </td>
               </tr>
 

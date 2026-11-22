@@ -11,6 +11,7 @@ public class GetSourceTrafficMinuteEndpoint(NpgsqlDataSource dataSource)
     public override void Configure()
     {
         Get("/api/traffic/sources/{SourceId}/minute");
+        AllowAnonymous(Http.GET);
         Description(x => x.WithTags("Traffic"));
     }
     
