@@ -1,0 +1,15 @@
+apiVersion: kafka.strimzi.io/v1
+kind: KafkaTopic
+
+metadata:
+  name: network-packet-events
+  labels:
+    strimzi.io/cluster: redblacksmith
+
+spec:
+  topicName: network.packet-events.v1
+  partitions: 3
+  replicas: 1
+  config:
+    retention.ms: 604800000
+    cleanup.policy: delete

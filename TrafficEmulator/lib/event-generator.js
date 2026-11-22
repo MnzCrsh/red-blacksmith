@@ -47,7 +47,7 @@ export function createPacketEvent() {
 
   const event = {
     eventId: createUuid(),
-    sourceId: `sensor-${String((__VU % 32) + 1).padStart(3, '0')}`,
+    sourceId: createUuid(),
     occurredAtUtc: new Date().toISOString(),
     sourceIp: createSourceIp(),
     destinationIp: createDestinationIp(),

@@ -12,6 +12,8 @@ providers:
     ingressClass: traefik
     namespaces:
       - redblacksmith
+      - observability
+      - traefik-system
 
   kubernetesCRD:
     enabled: false

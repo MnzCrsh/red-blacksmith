@@ -9,6 +9,7 @@ resources:
   - apps/traffic-processing
   - apps/traffic-api
   - apps/traffic-dashboard
+  - apps/traffic-emulator
 
 patches:
   - path: patches/traffic-ingestion-observability.yaml
