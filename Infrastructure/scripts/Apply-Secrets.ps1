@@ -82,17 +82,74 @@ if ($unknownKeys.Count -gt 0) {
     throw "Неизвестные ключи: $($unknownKeys -join ', ')"
 }
 
+$configMapName = "redblacksmith-config"
+$configJson = & kubectl get configmap $configMapName --namespace $Namespace --output=json 2>$null
+if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($configJson)) {
+    throw "ConfigMap '$configMapName' не найден в namespace '$Namespace'. Сначала примените конфиги."
+}
+
+$cmData = ($configJson | ConvertFrom-Json).data
+
+function Get-ConfigValue([object]$Data, [string]$Name) {
+    $prop = $Data.PSObject.Properties[$Name]
+    if ($null -eq $prop -or [string]::IsNullOrWhiteSpace([string]$prop.Value)) {
+        throw "В ConfigMap '$configMapName' отсутствует или пуст параметр '$Name'."
+    }
+    return [string]$prop.Value
+}
+
+$pgHost = Get-ConfigValue $cmData "POSTGRES_HOST"
+$pgPort = Get-ConfigValue $cmData "POSTGRES_PORT"
+$pgDb = Get-ConfigValue $cmData "POSTGRES_DATABASE"
+$pgApiUser = Get-ConfigValue $cmData "POSTGRES_API_USERNAME"
+$pgProcUser = Get-ConfigValue $cmData "POSTGRES_PROCESSING_USERNAME"
+
+$chHost = Get-ConfigValue $cmData "CLICKHOUSE_HOST"
+$chPort = Get-ConfigValue $cmData "CLICKHOUSE_PORT"
+$chDb = Get-ConfigValue $cmData "CLICKHOUSE_DATABASE"
+$chUser = Get-ConfigValue $cmData "CLICKHOUSE_USERNAME"
+
+$secretValues = @{}
+
+foreach ($entry in $values.GetEnumerator()) {
+    # Пароли прикладных PostgreSQL-ролей больше не нужны.
+    if ($entry.Key -notin @(
+        "POSTGRES_API_PASSWORD",
+        "POSTGRES_PROCESSING_PASSWORD"
+    )) {
+        $secretValues[$entry.Key] = $entry.Value
+    }
+}
+
+$secretValues["POSTGRES_API_CONNECTION_STRING"] =
+    "Host=$pgHost;Port=$pgPort;Database=$pgDb;Username=$pgApiUser"
+
+# Подключение TrafficProcessing.
+$secretValues["POSTGRES_PROCESSING_CONNECTION_STRING"] =
+    "Host=$pgHost;Port=$pgPort;Database=$pgDb;Username=$pgProcUser"
+
+# Отдельное подключение исключительно для FluentMigrator.
+$secretValues["POSTGRES_MIGRATION_CONNECTION_STRING"] =
+    "Host=$pgHost;Port=$pgPort;Database=$pgDb;Username=postgres"
+
+$secretValues["CLICKHOUSE_CONNECTION_STRING"] =
+    "Host=$chHost;Port=$chPort;Database=$chDb;Username=$chUser;Password=$($values['CLICKHOUSE_PASSWORD'])"
+
+$fromLiterals = foreach ($entry in $secretValues.GetEnumerator()) {
+    "--from-literal=$($entry.Key)=$($entry.Value)"
+}
+
+$secretManifest = & kubectl create secret generic redblacksmith-secrets `
+    --namespace $Namespace `
+    @fromLiterals `
+    --dry-run=client `
+    --output=yaml
+
 & kubectl get namespace $Namespace --output=name *> $null
 
 if ($LASTEXITCODE -ne 0) {
     throw "Namespace '$Namespace' не найден. Сначала необходимо создать namespace."
 }
-
-$secretManifest = & kubectl create secret generic redblacksmith-secrets `
-    --namespace $Namespace `
-    "--from-env-file=$resolvedSecretsFile" `
-    --dry-run=client `
-    --output=yaml
 
 if ($LASTEXITCODE -ne 0) {
     throw "Не удалось сформировать Kubernetes Secret."

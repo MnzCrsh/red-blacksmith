@@ -12,9 +12,11 @@ public static class PostgresExtensions
     {
         var connectionString = configuration["Postgres:ConnectionString"]
                                ?? throw new InvalidOperationException("Не задан Postgres:ConnectionString.");
-        AddMigrations(services, connectionString);
+        services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(connectionString));
         
-        services.AddSingleton<NpgsqlDataSource>(_ => NpgsqlDataSource.Create(connectionString)); 
+        var migrationConnectionString = configuration["Postgres:MigrationConnectionString"]
+                                        ?? throw new InvalidOperationException("Не задан Postgres:MigrationConnectionString.");
+        AddMigrations(services, migrationConnectionString);
         
         services.AddSingleton<IPacketEventProjectionStore, PostgresPacketEventProjectionStore>();
         services.AddSingleton<MaterializedViewRefreshService>();

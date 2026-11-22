@@ -40,25 +40,37 @@ spec:
 
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: 8081
               protocol: TCP
 
           envFrom:
             - configMapRef:
                 name: redblacksmith-config
-
+                
           env:
-            - name: POSTGRES_PROCESSING_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: redblacksmith-secrets
-                  key: POSTGRES_PROCESSING_PASSWORD
-
             - name: CLICKHOUSE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: redblacksmith-secrets
                   key: CLICKHOUSE_PASSWORD
+
+            - name: Postgres__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: redblacksmith-secrets
+                  key: POSTGRES_PROCESSING_CONNECTION_STRING
+
+            - name: Postgres__MigrationConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: redblacksmith-secrets
+                  key: POSTGRES_MIGRATION_CONNECTION_STRING
+                  
+            - name: ClickHouse__ConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: redblacksmith-secrets
+                  key: CLICKHOUSE_CONNECTION_STRING
 
           resources:
             requests:
