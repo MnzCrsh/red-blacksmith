@@ -42,13 +42,13 @@ spec:
           envFrom:
             - configMapRef:
                 name: redblacksmith-config
-
+                
           env:
-            - name: POSTGRES_API_PASSWORD
+            - name: Postgres__ConnectionString
               valueFrom:
                 secretKeyRef:
                   name: redblacksmith-secrets
-                  key: POSTGRES_API_PASSWORD
+                  key: POSTGRES_API_CONNECTION_STRING
 
           resources:
             requests:

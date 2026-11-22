@@ -7,3 +7,4 @@ resources:
   - traffic-processing
   - traffic-api
   - traffic-dashboard
+  - traffic-emulator

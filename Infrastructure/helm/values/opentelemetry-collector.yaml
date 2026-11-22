@@ -3,11 +3,11 @@ replicaCount: 1
 fullnameOverride: otel-collector
 
 image:
-  repository: ghcr.io/open-telemetry/opentelemetry-collector-releases/opentelemetry-collector-k8s
+  repository: otel/opentelemetry-collector-contrib
   pullPolicy: IfNotPresent
 
 command:
-  name: otelcol-k8s
+  name: otelcol-contrib
 
 resources:
   requests:
@@ -47,7 +47,6 @@ ports:
     enabled: true
     containerPort: 8889
     servicePort: 8889
-    hostPort: null
     protocol: TCP
 
 serviceMonitor:

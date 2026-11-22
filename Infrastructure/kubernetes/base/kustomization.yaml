@@ -3,11 +3,13 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - config/app-config.yaml
   - config/observability-config.yaml
-  - traffic-ingestion
-  - traffic-processing
-  - traffic-api
-  - traffic-dashboard
+  - apps/traffic-ingestion
+  - apps/traffic-processing
+  - apps/traffic-api
+  - apps/traffic-dashboard
+  - apps/traffic-emulator
 
 patches:
   - path: patches/traffic-ingestion-observability.yaml

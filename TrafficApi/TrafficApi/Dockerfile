@@ -13,7 +13,7 @@ WORKDIR /src
 
 COPY . .
 
-RUN dotnet publish "RedBlacksmith.TrafficApi/RedBlacksmith.TrafficApi.csproj" \
+RUN dotnet publish "TrafficApi/RedBlacksmith.TrafficApi/RedBlacksmith.TrafficApi.csproj" \
     -c $BUILD_CONFIGURATION \
     -o /app/publish \
     /p:UseAppHost=false

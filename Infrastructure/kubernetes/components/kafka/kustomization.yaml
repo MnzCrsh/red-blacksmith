@@ -6,3 +6,5 @@ namespace: redblacksmith
 resources:
   - kafka-node-pool.yaml
   - kafka.yaml
+  - topics/network-packet-events.yaml
+  - topics/network-packet-events-dlq.yaml
