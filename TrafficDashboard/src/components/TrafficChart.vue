@@ -11,7 +11,7 @@ import {
 import type { EChartsOption } from 'echarts';
 import VChart from 'vue-echarts';
 
-import type { SourceTrafficMinute } from '@/types/traffic';
+import type { TrafficMinutePoint } from '@/types/traffic';
 
 use([
   CanvasRenderer,
@@ -22,7 +22,7 @@ use([
 ]);
 
 const props = defineProps<{
-  records: SourceTrafficMinute[];
+  records: TrafficMinutePoint[];
 }>();
 
 const formatter = new Intl.DateTimeFormat('ru-RU', {
